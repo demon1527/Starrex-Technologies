@@ -4,7 +4,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-camera.position.z = 6;
+camera.position.z = 10;
 
 const group = new THREE.Group();
 scene.add(group);
@@ -126,7 +126,7 @@ const flare = new THREE.Sprite(new THREE.SpriteMaterial({
   map: makeFlare(), blending: THREE.AdditiveBlending,
   transparent: true, depthWrite: false
 }));
-flare.scale.set(1.3, 1.3, 1);
+flare.scale.set(0.8, 0.8, 1);
 ringGroup.add(flare);
 
 /* ---------- STARS (two layers, drifting) ---------- */
@@ -155,7 +155,10 @@ function resize() {
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  base.set(camera.aspect > 1 ? 2.8 : 0.9, -0.6);
+  const halfW = Math.tan(THREE.MathUtils.degToRad(20)) * 10 * camera.aspect;
+const portrait = camera.aspect < 1;
+base.set(halfW * (portrait ? 0.45 : 0.73), portrait ? -1.6 : -0.5);
+group.scale.setScalar(portrait ? 0.6 : 1);
 }
 window.addEventListener("resize", resize);
 resize();

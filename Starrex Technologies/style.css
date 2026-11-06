@@ -316,3 +316,12 @@ main {
     position: relative;
     z-index: 1;
 }
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgba(7, 4, 15, 0.6) 0%, transparent 60%);
+    pointer-events: none;
+}
+.hero { position: relative; }
