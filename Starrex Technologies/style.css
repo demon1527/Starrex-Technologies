@@ -549,3 +549,37 @@ main {
         gap: 45px;
     }
 }
+/* SOUND BUTTON */
+.sound-toggle {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 200;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(20, 14, 40, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--grey);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.sound-toggle:hover {
+    color: var(--white);
+    transform: translateY(-3px);
+}
+
+.sound-toggle .waves { display: none; }
+.sound-toggle.is-on .waves { display: inline; }
+.sound-toggle.is-on .slash { display: none; }
+.sound-toggle.is-on {
+    color: var(--violet);
+    border-color: var(--violet);
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.45);
+}
