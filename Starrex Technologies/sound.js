@@ -6,7 +6,7 @@
 ========================================================= */
 
 (function () {
-  const MASTER_LEVEL = 0.22;  // overall volume (0 – 1). Lower = quieter.
+  const MASTER_LEVEL = 0.20;  // overall volume (0 – 1). Lower = quieter.
 
   const WHOOSH_LEVEL = 0.8;   // page-switch whoosh volume. Lower = quieter, 0 = off.
 
