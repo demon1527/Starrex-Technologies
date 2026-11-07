@@ -149,8 +149,8 @@ nav ul li a.active::after {
 /* HERO SECTION */
 
 .hero {
-    min-height: 650px;
-    padding: 150px 8%;
+    min-height: 700px;
+    padding: 80px 8%;
     display: flex;
     flex-direction: column;
     justify-content: center;
