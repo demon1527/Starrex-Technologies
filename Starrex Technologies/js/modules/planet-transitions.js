@@ -113,6 +113,19 @@ function prefetchDestination(destination) {
 
   addPrefetchHint(destination.href);
 
+  const pageFile = destination.pathname.split("/").filter(Boolean).pop()?.toLowerCase() || "index.html";
+  const pageStyles = {
+    "index.html": ["css/pages/home.css"],
+    "products.html": ["css/pages/products.css", "css/themes/moon.css"],
+    "projects.html": ["css/pages/projects.css", "css/themes/earth.css"],
+    "services.html": ["css/pages/services.css", "css/themes/mars.css"],
+    "contact.html": ["css/pages/contact.css"],
+  };
+
+  for (const stylesheet of pageStyles[pageFile] || []) {
+    addPrefetchHint(new URL(stylesheet, window.location.href).href, "style");
+  }
+
   // Earth uses hosted Blue Marble maps. Fetch them while the visitor is
   // considering the Projects page, rather than after its arrival animation.
   if (getDestinationPlanet(destination.pathname) === "earth") {
