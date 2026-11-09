@@ -558,6 +558,7 @@
 
   /* ---------- SIZE AND POSITION ---------- */
   const base = new THREE.Vector2(4.6, -0.3);
+  let scrollTravel = 9.4;
 
   function resize() {
     if (renderer.getContext().isContextLost()) return;
@@ -579,10 +580,13 @@
 
     const portrait = camera.aspect < 1;
 
-    // Original Saturn positioning — deliberately unchanged.
+    // Preserve the established Saturn position and responsive scale.
     base.set(halfW * (portrait ? 0.4 : 0.76), portrait ? -1.6 : -0.3);
-
     group.scale.setScalar(portrait ? 0.55 : 1);
+
+    // Move the complete ring system beyond the top edge by page bottom.
+    // Portrait Saturn is smaller, so it needs slightly less travel.
+    scrollTravel = portrait ? 8.5 : 9.4;
   }
 
   /* ---------- MOUSE PARALLAX ---------- */
@@ -629,7 +633,22 @@
       starsNear.rotation.z += 0.0001;
     }
 
-    const scrollLift = Math.min(window.scrollY * 0.003, 3);
+    // Normalize against the full document so the same behaviour works on
+    // pages of different lengths, including future pages using this canvas.
+    const maxScroll = Math.max(
+      document.documentElement.scrollHeight - window.innerHeight,
+      1,
+    );
+
+    const rawProgress = reduceMotion
+      ? 0
+      : THREE.MathUtils.clamp(window.scrollY / maxScroll, 0, 1);
+
+    // Smoothstep keeps the upward movement gradual at both ends of the page.
+    const easedProgress =
+      rawProgress * rawProgress * (3 - 2 * rawProgress);
+
+    const scrollLift = easedProgress * scrollTravel;
 
     group.position.x += (base.x + mouse.x * 0.2 - group.position.x) * 0.05;
 
