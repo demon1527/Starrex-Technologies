@@ -155,44 +155,6 @@
   color: #D8B4FE;
 }
 
-.moon-identity {
-  position: absolute;
-  z-index: 2;
-  right: 8.5%;
-  bottom: 17%;
-  display: grid;
-  justify-items: start;
-  gap: 7px;
-  padding-left: 16px;
-  border-left: 1px solid rgba(216, 210, 198, .38);
-  text-shadow: 0 2px 16px rgba(0, 0, 0, .8);
-  pointer-events: none;
-}
-
-.moon-identity-line {
-  display: none;
-}
-
-.moon-identity-kicker {
-  color: rgba(226, 219, 207, .7);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-.moon-identity strong {
-  color: rgba(248, 246, 241, .95);
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 4px;
-}
-
-.moon-identity-note {
-  color: rgba(226, 219, 207, .58);
-  font-size: 10px;
-  letter-spacing: .4px;
-}
-
 .products-scroll-cue {
   position: absolute;
   bottom: 40px;
@@ -546,80 +508,6 @@
 
   .products-hero-copy {
     width: min(640px, 76%);
-  }
-
-  .moon-identity {
-    right: 6%;
-    bottom: 14%;
-  }
-
-  .products-section,
-  .product-principles {
-    padding-left: 6%;
-    padding-right: 6%;
-  }
-
-  .products-footer {
-    padding-left: 6%;
-    padding-right: 6%;
-  }
-}
-
-@media (max-width: 640px) {
-  .products-hero {
-    align-items: flex-start;
-    min-height: 780px;
-    padding: 112px 7% 115px;
-  }
-
-  .products-hero::before {
-    background: linear-gradient(180deg, rgba(8, 3, 17, .97) 0%, rgba(8, 3, 17, .84) 48%, rgba(8, 3, 17, .2) 100%);
-  }
-
-  .products-body:not(.moon-scene-ready) .products-hero::after {
-    top: auto;
-    right: 8%;
-    bottom: 14%;
-    width: 190px;
-    transform: none;
-  }
-
-  .products-hero-copy {
-    width: 100%;
-  }
-
-  .products-hero h1 {
-    margin-top: 22px;
-    font-size: clamp(47px, 12vw, 67px);
-    letter-spacing: -3.5px;
-  }
-
-  .products-hero-lead {
-    max-width: 440px;
-    font-size: 14px;
-    line-height: 1.8;
-  }
-
-  .products-hero-actions {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 19px;
-    margin-top: 28px;
-  }
-
-  .moon-identity {
-    right: 7%;
-    bottom: 13%;
-    padding-left: 12px;
-  }
-
-  .moon-identity strong {
-    font-size: 15px;
-  }
-
-  .moon-identity-note {
-    max-width: 150px;
-    font-size: 9px;
   }
 
   .products-scroll-cue {
