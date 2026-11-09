@@ -60,6 +60,7 @@ There is no npm install or compilation/build step in the current website.
     ├── index.html
     ├── products.html
     ├── projects.html
+    ├── services.html
     ├── contact.html
     ├── robots.txt
     ├── css/
@@ -82,6 +83,7 @@ There is no npm install or compilation/build step in the current website.
     │   │   ├── saturn.js
     │   │   ├── moon.js
     │   │   ├── earth.js
+    │   │   ├── mars.js
     │   │   ├── animation-loop.js
     │   │   ├── viewport.js
     │   │   ├── visibility.js
