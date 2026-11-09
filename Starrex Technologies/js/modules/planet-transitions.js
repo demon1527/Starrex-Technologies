@@ -63,13 +63,15 @@ function createOverlay() {
   return overlay;
 }
 
-function beginArrival(body, overlay, direction) {
+function beginArrival(body, overlay, direction, onComplete) {
   let isComplete = false;
 
   const cleanup = () => {
     if (isComplete) return;
     isComplete = true;
     body.classList.remove(`planet-transition-in-${direction}`);
+    body.removeAttribute("aria-busy");
+    onComplete?.();
     overlay.removeEventListener("animationend", finishArrival);
     overlay.remove();
   };
@@ -85,6 +87,7 @@ function beginArrival(body, overlay, direction) {
   };
 
   body.classList.add(`planet-transition-in-${direction}`);
+  body.setAttribute("aria-busy", "true");
   overlay.addEventListener("animationend", finishArrival);
   window.setTimeout(cleanup, 1200);
 }
@@ -112,13 +115,20 @@ export function initPlanetTransitions() {
 
   const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
   const incoming = readHandoff();
+  let transitionActive = Boolean(incoming && !motionPreference.matches);
 
-  if (incoming && !motionPreference.matches) {
+  if (transitionActive) {
     const overlay = createOverlay();
-    beginArrival(body, overlay, incoming.direction);
+    beginArrival(body, overlay, incoming.direction, () => {
+      transitionActive = false;
+    });
   }
 
   document.addEventListener("click", (event) => {
+    if (transitionActive) {
+      event.preventDefault();
+      return;
+    }
     const clickTarget = event.target instanceof Element ? event.target : event.target?.parentElement;
     const link = clickTarget?.closest("a[href]");
     if (!link || !canIntercept(event, link) || motionPreference.matches) return;
@@ -165,6 +175,7 @@ export function initPlanetTransitions() {
     }
 
     event.preventDefault();
+    transitionActive = true;
     body.classList.add(`planet-transition-out-${direction}`);
     body.setAttribute("aria-busy", "true");
 
