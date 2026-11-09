@@ -3,7 +3,7 @@
    Main Stylesheet
 ========================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* Fonts are declared in each page head so the browser can preconnect early. */
 
 
 
@@ -53,4 +53,35 @@ body {
 main {
     position: relative;
     z-index: 1;
+}
+
+
+/* Shared keyboard accessibility helpers. */
+.skip-link {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 500;
+    padding: 10px 14px;
+    color: #FFFFFF;
+    background: #6D28D9;
+    border: 2px solid #E9D5FF;
+    border-radius: 8px;
+    text-decoration: none;
+    transform: translateY(-160%);
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+:focus-visible {
+    outline: 2px solid #D8B4FE;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
 }

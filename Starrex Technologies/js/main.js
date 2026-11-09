@@ -3,6 +3,8 @@ import "./modules/saturn.js";
 import "./modules/audio.js";
 import { initNavigation } from "./modules/navigation.js";
 import { initContactForm } from "./pages/contact.js";
+import { initFooter } from "./modules/footer.js";
 
 initNavigation();
 initContactForm();
+initFooter();

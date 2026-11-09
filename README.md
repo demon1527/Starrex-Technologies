@@ -4,9 +4,9 @@
 
 # Starrex Technologies
 
-**Innovate · Automate · Grow**
+**Innovate · Automate · Evolve**
 
-The official website of Starrex Technologies, an independent software studio building modern websites, Python automation and custom software.
+The official website of Starrex Technologies, an independent software studio focused on modern digital experiences, custom software and practical automation.
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
@@ -20,45 +20,48 @@ The official website of Starrex Technologies, an independent software studio bui
 
 ## About
 
-Starrex Technologies is a software studio focused on practical digital solutions: web development, Python automation, custom software and digital products. This repository contains the company's static website, built with HTML, CSS and vanilla JavaScript.
+Starrex Technologies is an independent software studio focused on practical digital solutions: web development, Python automation, custom software and digital product experiences. This repository contains the studio website, built with semantic HTML, modular CSS and vanilla JavaScript ES modules.
 
-The site features a procedural Saturn scene, ambient sound controls, responsive navigation, service information and a dedicated contact page.
+The visual identity includes a procedural Saturn scene, ambient sound controls, responsive navigation and a dedicated contact page. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
 
-## Features
+## Current website
 
-- **Procedural 3D Saturn background.** Built with Three.js; the planet and rings are generated in code.
-- **Parallax and scroll motion.** The planet responds subtly to pointer movement and page scrolling.
-- **Ambient sound.** A soundscape is synthesized with the Web Audio API and remains off until a visitor enables it.
-- **Responsive navigation.** Desktop links and an accessible mobile menu.
-- **Contact page.** A dedicated enquiry page with client-side validation and email delivery through FormSubmit.
-- **Accessibility and comfort.** Semantic page structure, labelled fields, live form feedback and reduced-motion-aware page styling.
-
-## Pages and sections
+### Pages and sections
 
 | Page / section | URL | Description |
 | --- | --- | --- |
-| Home | `index.html#home` | Hero, introduction and primary calls to action |
-| Services | `index.html#services` | Digital Products, Web Development and Software Studio |
-| About | `index.html#about` | Studio introduction and values |
-| Contact | `contact.html` | Contact details and project enquiry form |
+| Home | `Starrex Technologies/index.html#home` | Hero and studio introduction |
+| Products | `Starrex Technologies/index.html#products` | Digital product direction and concepts |
+| Projects | `Starrex Technologies/index.html#projects` | Project capabilities: web experiences, custom software and automation |
+| Services | `Starrex Technologies/index.html#services` | Ways the studio can help |
+| Our approach | `Starrex Technologies/index.html` | Understand, plan, build and refine |
+| About | `Starrex Technologies/index.html#about` | Studio introduction and values |
+| Contact | `Starrex Technologies/contact.html` | Contact details and project enquiry form |
 
-The Products and Projects navigation destinations are retained for future pages; those sections are not implemented yet.
+The Products and Projects sections describe the studio's direction and capabilities; they are not presented as a live product catalogue or fabricated client case studies.
 
-## Contact form setup
+## Features
 
-The contact form sends submissions to **ehtishamofficial28@gmail.com** through [FormSubmit](https://formsubmit.co/). It uses a hosted form endpoint, so this static website does not need a custom server or Firebase Functions.
-
-**One-time activation is required:** after the first real form submission, FormSubmit sends an activation email to the destination inbox. Open that email and confirm the form. Until the address is confirmed, submissions may be held by the service and normal delivery is not active. Check spam/junk if the activation email is not visible.
-
-The form uses the FormSubmit AJAX endpoint so the visitor receives success or error feedback on the contact page without being redirected away. Review FormSubmit's [documentation](https://formsubmit.co/documentation) for its current processing and privacy terms.
+- **Procedural 3D Saturn scene:** rendered with Three.js, including the planet, rings and background stars.
+- **Motion handling:** pointer/scroll response, resize handling, reduced-motion awareness and safeguards for unsupported WebGL.
+- **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
+- **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
+- **Active section indication:** homepage navigation tracks the visible section.
+- **Dedicated contact page:** enquiry form with client-side validation, a honeypot field and delivery through FormSubmit.
+- **Accessibility basics:** semantic landmarks, skip links, visible keyboard focus and live form feedback.
+- **Page metadata:** descriptive titles/descriptions, Open Graph basics and Twitter summary metadata.
 
 ## Tech stack
 
-- HTML5, CSS3 and vanilla JavaScript (ES modules)
+- HTML5
+- CSS3 (shared foundation/navigation plus page-specific stylesheets)
+- Vanilla JavaScript using ES modules
 - [Three.js](https://threejs.org/) `0.160.0`, loaded from jsDelivr
 - Web Audio API
 - [Inter](https://fonts.google.com/specimen/Inter), loaded from Google Fonts
-- [FormSubmit](https://formsubmit.co/) for static form delivery
+- [FormSubmit](https://formsubmit.co/) for contact-form delivery
+
+There is no npm install or compilation/build step in the current website.
 
 ## Project structure
 
@@ -68,61 +71,83 @@ The form uses the FormSubmit AJAX endpoint so the visitor receives success or er
 └── Starrex Technologies/
     ├── index.html
     ├── contact.html
+    ├── robots.txt
     ├── css/
     │   ├── base.css
     │   ├── navigation.css
     │   ├── sections.css
     │   ├── responsive.css
     │   └── pages/
+    │       ├── home.css
     │       └── contact.css
     ├── js/
     │   ├── main.js
     │   ├── modules/
     │   │   ├── navigation.js
     │   │   ├── saturn.js
-    │   │   └── audio.js
+    │   │   ├── audio.js
+    │   │   └── footer.js
     │   └── pages/
     │       └── contact.js
     └── assets/
         ├── images/
+        │   ├── starrex-logo.png
+        │   └── starrex-logo-stacked.png
         └── Icons/
+            └── starrex-icon.png
 ```
 
-## Getting started
+## Run locally
 
-The website has no build step or package installation requirement.
-
-Run a local server from the `Starrex Technologies` directory:
+Open a terminal in the `Starrex Technologies` directory and run:
 
 ```bash
 python -m http.server 8000
 ```
 
-Then open <http://localhost:8000>. A local server is recommended because ES modules and the contact service should not be tested by opening the HTML file directly from disk.
+Then visit <http://localhost:8000>.
 
-An internet connection is required for the Three.js library, Inter font and hosted form service.
+Use a local web server rather than opening the HTML files directly with `file://`. The JavaScript modules and hosted contact form should be tested through HTTP.
 
-## Customization
+An internet connection is needed for the externally hosted Three.js library, Google Fonts and FormSubmit service.
 
-| What | Where |
+## Contact form setup
+
+The form sends enquiries to **ehtishamofficial28@gmail.com** through [FormSubmit](https://formsubmit.co/). FormSubmit is a third-party service that processes form submissions.
+
+**One-time activation is required:** submit a genuine test enquiry, then open the activation email sent by FormSubmit to the destination inbox and confirm it. Until activation is confirmed, normal delivery is not active. Check spam/junk if the email is not visible.
+
+The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedback without being redirected away. Review the provider's [documentation](https://formsubmit.co/documentation) and privacy terms before using the form publicly. Actual delivery must be verified with a real submission; source-code checks do not prove inbox delivery.
+
+## Styling and behaviour map
+
+| Concern | File |
 | --- | --- |
-| Theme variables and page foundation | `css/base.css` |
-| Shared navigation and sound control | `css/navigation.css` |
-| Home page sections | `css/sections.css` |
-| Responsive breakpoints | `css/responsive.css` |
-| Contact page design | `css/pages/contact.css` |
-| Contact form validation and delivery | `js/pages/contact.js` |
+| Shared theme, body foundation, Saturn canvas layer and accessibility helpers | `css/base.css` |
+| Shared desktop navigation and sound control | `css/navigation.css` |
+| Shared styles still used by the About section | `css/sections.css` |
+| Shared mobile navigation breakpoints | `css/responsive.css` |
+| Homepage layout and responsive styles | `css/pages/home.css` |
+| Contact page layout and responsive styles | `css/pages/contact.css` |
+| Shared JavaScript entry point | `js/main.js` |
 | Saturn scene | `js/modules/saturn.js` |
 | Ambient sound | `js/modules/audio.js` |
-| Shared navigation behaviour | `js/modules/navigation.js` |
+| Navigation and active-section behaviour | `js/modules/navigation.js` |
+| Shared footer utilities | `js/modules/footer.js` |
+| Contact form validation and delivery | `js/pages/contact.js` |
 
-## Deployment
+## SEO and deployment notes
 
-This is a static website and can be deployed to GitHub Pages, Netlify, Vercel or another static host. Configure the `Starrex Technologies` folder as the site root. If using GitHub Pages, configure the deployment workflow to publish this nested directory.
+- Both HTML pages include unique titles, descriptions, Open Graph title/description/site metadata and Twitter summary metadata.
+- The favicon and logo paths are present in the repository.
+- A basic `robots.txt` is included in the website root folder.
+- A canonical URL and XML sitemap have intentionally **not** been hard-coded yet: the repository does not identify a confirmed public production domain. Add both after the final deployment URL is known; do not use a guessed GitHub Pages or hosting URL.
+- The deploy/publish directory must be `Starrex Technologies`, not the repository root, because the website files are nested in that folder.
+- This is a static site and can be hosted on GitHub Pages, Netlify, Vercel or another static host. Configure the selected host to publish the nested website directory.
 
 ## License
 
-No license has been specified yet. Until one is added, all rights are reserved by the repository owner.
+No license has been specified. Unless the repository owner adds one, all rights are reserved.
 
 ---
 
