@@ -174,9 +174,10 @@ import { createVisibilityController } from "./visibility.js";
   earthGroup.add(earth);
 
   const cloudMaterial = new THREE.MeshStandardMaterial({
-    map: cloudTexture,
+    color: 0xffffff,
+    alphaMap: cloudTexture,
     transparent: true,
-    opacity: 0.22,
+    opacity: 0.3,
     depthWrite: false,
     roughness: 1,
   });
@@ -285,8 +286,8 @@ import { createVisibilityController } from "./visibility.js";
       }
       loadedTexture.colorSpace = THREE.SRGBColorSpace;
       loadedTexture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
-      const previousTexture = cloudMaterial.map;
-      cloudMaterial.map = loadedTexture;
+      const previousTexture = cloudMaterial.alphaMap;
+      cloudMaterial.alphaMap = loadedTexture;
       cloudMaterial.needsUpdate = true;
       if (previousTexture && previousTexture !== loadedTexture) previousTexture.dispose();
       cloudTexture = loadedTexture;
