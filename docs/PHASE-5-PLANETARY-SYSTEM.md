@@ -4,7 +4,7 @@
 
 Introduce a reusable planetary background and cinematic page-transition system without replacing the existing vanilla HTML, CSS, and JavaScript architecture or disrupting the current site.
 
-This document defines the implementation boundary for Phase 5. It is a design contract, not a claim that the future planet modules or transitions are already implemented.
+This document defines the implementation boundary and tracks which parts of Phase 5 are implemented, user-confirmed or still planned.
 
 ## Current baseline (restored and user-confirmed working)
 
@@ -85,7 +85,7 @@ Planet-specific textures and geometry must be disposed when no longer needed. Te
 - Contact remains a separate utility page and keeps the Saturn background unless a later design decision explicitly changes it.
 - Navigation must remain usable by mouse, keyboard, touch and assistive technology. A transition must not trap focus or make the page inaccessible.
 
-Because the current site uses separate HTML pages, the transition handoff must account for document navigation. The implementation should use a short outgoing transition followed by normal navigation, with the destination page initializing its own incoming composition. Do not introduce a fragile SPA/router rewrite solely to achieve the effect.
+Because the current site uses separate HTML pages, the transition handoff uses a short outgoing transition followed by normal navigation, with the destination page initializing its own incoming composition. This is now implemented in `js/modules/planet-transitions.js` and `css/planet-transitions.css`; it uses session storage to carry the direction across the document load. Do not introduce a fragile SPA/router rewrite solely to achieve the effect.
 
 ## Performance and accessibility guardrails
 
@@ -96,7 +96,7 @@ Because the current site uses separate HTML pages, the transition handoff must a
 - Pause rendering when the tab is hidden; recover safely from WebGL context loss.
 - Provide a clean static background fallback if WebGL or Three.js is unavailable.
 - Keep all navigation labels, page content, forms and controls as ordinary HTML, not embedded in the canvas.
-- Ensure reduced-motion users can navigate without cinematic travel.\n- Carry the direction across a normal document load without a SPA rewrite; if storage is unavailable, fall back to native navigation.
+- Ensure reduced-motion users can navigate without cinematic travel.\n- Carry the direction across a normal document load without a SPA rewrite; if session storage is unavailable, fall back to native navigation.\n- Carry the direction across a normal document load without a SPA rewrite; if storage is unavailable, fall back to native navigation.
 - Do not add paid APIs, backend services, or new frameworks.
 
 ## Incremental implementation sequence
@@ -106,9 +106,9 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 1. **5.1A — Baseline inventory (complete):** the current Saturn implementation has been inspected without changing production code. See [PHASE-5-SATURN-INVENTORY.md](PHASE-5-SATURN-INVENTORY.md) for renderer ownership, script loading, scene construction, scroll behaviour, lifecycle handling and migration constraints.
 2. **5.1B — Migration seam design (complete):** the proposed engine/planet boundary and factory lifecycle are documented in [PHASE-5-SATURN-INVENTORY.md](PHASE-5-SATURN-INVENTORY.md). The engine will own renderer, scene, camera, frame scheduling and browser lifecycle; Saturn will own only its visual resources and per-frame visual update. This is a design contract, not implemented code.
 3. **5.1C — Controlled migration (three responsibilities extracted):** requestAnimationFrame scheduling lives in `js/modules/animation-loop.js`, renderer/camera viewport sizing lives in `js/modules/viewport.js`, and document visibility observation lives in `js/modules/visibility.js`. Saturn delegates frame scheduling, resize observation and hidden/visible tab notifications to these helpers while retaining renderer/scene/camera creation, geometry, shaders, composition values, scroll calculations, pointer handling, WebGL context lifecycle and reduced-motion handling. The Three.js loading order and HTML entry points remain unchanged. This is still a partial extraction; browser regression testing is required before moving another lifecycle responsibility.
-4. **5.1D — Products/Moon visual prototype (implemented; verification pending):** the Moon destination page and its page-specific visual module are in place. The module uses the extracted animation-loop, viewport and visibility helpers, but remains a temporary page-local scene until the unified engine is ready. A CSS lunar fallback is shown when WebGL is unavailable.
-5. **5.2 — Regression verification:** verify Home and Contact still match the known Saturn baseline, then verify Products/Moon on desktop and mobile, scroll up/down, hidden-tab behaviour, reduced motion and WebGL fallback. Do not proceed until the three pages behave reliably.
-6. **5.3 — Shared engine and transition controller:** consolidate renderer/scene lifecycle behind the agreed engine boundary, then add direction-aware navigation handoff and test Saturn-to-Moon transitions with reduced-motion and keyboard-accessibility coverage.
+4. **5.1D — Products/Moon visual prototype (user-confirmed working):** the Moon destination page and its page-specific visual module are in place. The module uses the extracted animation-loop, viewport and visibility helpers, but remains a temporary page-local scene until the unified engine is ready. A CSS lunar fallback is shown when WebGL is unavailable. Products also has a separate graphite/mineral-silver theme with restrained lavender accents; the visible Moon-identification caption has been removed.
+5. **5.2 — Direction-aware page handoff (implemented; browser verification pending):** the new transition module preserves normal multi-page navigation, carries direction and destination through session storage, moves the outgoing planet off-screen, and animates the destination planet into position. Forward navigation travels left; backward navigation travels right. Reduced-motion users bypass the cinematic effect. The handoff currently covers the existing Saturn and Moon destinations; Earth and Mars routes become active when their pages exist.
+6. **5.3 — Shared engine:** consolidate renderer/scene lifecycle behind the agreed engine boundary only after the current Saturn baseline and Moon/transition paths have been verified across desktop, mobile, keyboard and reduced-motion use.
 7. **5.4 — Earth prototype:** add Earth for the future Projects page and test the relevant navigation path before adding Mars.
 8. **5.5 — Mars prototype:** add Mars for the future Services page only after the engine and existing planet paths are stable.
 9. **5.6 — Polish:** tune timing, atmosphere accents, responsive composition, texture budgets and documentation.
