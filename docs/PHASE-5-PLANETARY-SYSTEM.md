@@ -12,7 +12,8 @@ This document defines the implementation boundary for Phase 5. It is a design co
 - Three.js 0.160.0 is loaded from jsDelivr on both pages.
 - Both pages contain a fixed `canvas#planet` behind the page content.
 - `js/main.js` is the shared ES-module entry point.
-- `js/modules/saturn.js` currently owns its own renderer, scene, camera, procedural Saturn textures, rings, stars, animation loop, resize handling, reduced-motion handling, and scroll movement.
+- `js/modules/planet-engine.js` owns the single renderer, scene, camera, animation loop, resize handling, visibility lifecycle, WebGL context recovery and reduced-motion preference.
+- `js/planets/saturn.js` owns Saturn's procedural textures, rings, stars, composition, scroll response and disposable visual resources.
 - Navigation is shared through `js/modules/navigation.js`; homepage navigation currently uses section anchors.
 - Saturn must remain visually unchanged on Home and Contact while the new architecture is introduced.
 
@@ -98,7 +99,7 @@ Because the current site uses separate HTML pages, the transition handoff must a
 
 ## Incremental implementation sequence
 
-1. **5.1 — Engine contract and Saturn extraction:** define the shared engine API, then move the current Saturn scene into a planet module while matching the current appearance and scroll behaviour. No new planet and no navigation redesign in this step.
+1. **5.1 — Engine contract and Saturn extraction (implemented; visual regression pending):** the shared engine API and Saturn planet module are in place. No new planet or navigation redesign was introduced. Desktop/mobile visual comparison and interaction checks remain the next verification gate.
 2. **5.2 — Regression verification:** verify Home and Contact, desktop/mobile sizes, scroll up/down, hidden-tab behaviour, reduced motion and WebGL fallback. Do not proceed until Saturn matches the current baseline.
 3. **5.3 — Transition controller:** add the direction-aware transition choreography with Saturn-to-Saturn test transitions first; verify page navigation and accessibility.
 4. **5.4 — Earth prototype:** add Earth as the first new planet and test Home ↔ Projects transitions before adding other planets.

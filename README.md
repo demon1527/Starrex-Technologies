@@ -42,8 +42,8 @@ The Products and Projects sections describe the studio's direction and capabilit
 
 ## Features
 
-- **Procedural 3D Saturn scene:** rendered with Three.js, including the planet, rings and background stars.
-- **Motion handling:** pointer/scroll response, resize handling, reduced-motion awareness and safeguards for unsupported WebGL.
+- **Shared planetary rendering engine:** one Three.js renderer, scene, camera and animation loop, with Saturn supplied as a separate planet module.
+- **Motion and lifecycle handling:** pointer/scroll response, responsive composition, reduced-motion awareness, hidden-tab pause, WebGL context recovery and a static fallback when WebGL is unavailable.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
 - **Active section indication:** homepage navigation tracks the visible section.
@@ -130,7 +130,8 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Homepage layout and responsive styles | `css/pages/home.css` |
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
-| Saturn scene | `js/modules/saturn.js` |
+| Shared WebGL renderer, scene, camera and animation lifecycle | `js/modules/planet-engine.js` |
+| Saturn planet geometry, procedural textures and visual behaviour | `js/planets/saturn.js` |
 | Ambient sound | `js/modules/audio.js` |
 | Navigation and active-section behaviour | `js/modules/navigation.js` |
 | Shared footer utilities | `js/modules/footer.js` |

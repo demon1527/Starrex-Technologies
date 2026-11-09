@@ -1,55 +1,13 @@
-/* =========================================================
-   STARREX – Rotating Saturn background (Three.js)
-   Procedural banded gas giant + realistic ring system.
-   No texture downloads needed.
-   
-   Stability improvements:
-   - WebGL availability protection
-   - Single animation loop
-   - Pause when tab is hidden
-   - WebGL context-loss handling
-   - Resize handling
-   - Reduced-motion support
-========================================================= */
-
-(() => {
+/**
+ * Saturn planet definition.
+ *
+ * This module owns Saturn's procedural textures, meshes and visual behaviour.
+ * The shared planet engine owns the WebGL renderer, scene, camera and frame loop.
+ */
+export function createSaturn({ THREE, renderer }) {
   "use strict";
 
-  /* ---------- INITIAL SAFETY CHECKS ---------- */
-  const canvas = document.getElementById("planet");
-
-  if (!canvas) {
-    console.warn("Starrex Saturn: Canvas #planet was not found.");
-    return;
-  }
-
-  if (!window.THREE) {
-    console.warn("Starrex Saturn: Three.js is not available.");
-    return;
-  }
-
-  let renderer;
-
-  try {
-    renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-    });
-  } catch (error) {
-    console.warn("Starrex Saturn: WebGL could not be initialized.", error);
-    return;
-  }
-
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-  camera.position.z = 10;
-
   const group = new THREE.Group();
-  scene.add(group);
-
   const PLANET_R = 2.0;
   const FLATTEN = 0.93;
   const SUN = new THREE.Vector3(-0.9, 0.3, 0.5).normalize();
@@ -553,24 +511,15 @@
   const starsFar = makeStars(700, 0.04, 40);
   const starsNear = makeStars(120, 0.09, 30);
 
-  scene.add(starsFar, starsNear);
+  const objects = [group, starsFar, starsNear];
 
-  /* ---------- SIZE AND POSITION ---------- */
+
+  /* ---------- RESPONSIVE COMPOSITION ---------- */
   const base = new THREE.Vector2(4.6, -0.3);
   let scrollTravel = 9.4;
 
-  function resize() {
-    if (renderer.getContext().isContextLost()) return;
-
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
+  function resize({ width, height, camera }) {
     if (!width || !height) return;
-
-    renderer.setSize(width, height, false);
-
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
 
     const halfW =
       Math.tan(THREE.MathUtils.degToRad(20)) *
@@ -579,179 +528,82 @@
 
     const portrait = camera.aspect < 1;
 
-    // Preserve the established Saturn position and responsive scale.
+    // These values intentionally preserve the established Saturn composition.
     base.set(halfW * (portrait ? 0.4 : 0.76), portrait ? -1.6 : -0.3);
     group.scale.setScalar(portrait ? 0.55 : 1);
-
-    // Keep Saturn visible through most of the page and move it fully
-    // beyond the top edge only as the visitor approaches the page bottom.
-    // Portrait positioning starts lower, so it needs slightly more travel.
     scrollTravel = portrait ? 6.4 : 6.0;
   }
 
-  /* ---------- MOUSE PARALLAX ---------- */
-  const mouse = { x: 0, y: 0 };
+  /* ---------- FRAME UPDATE (ENGINE-DRIVEN) ---------- */
+  function update({ reducedMotion, pointer, scrollProgress }) {
+    planetMat.uniforms.uRot.value += reducedMotion ? 0.0001 : 0.0005;
 
-  function handlePointerMove(e) {
-    mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
-  }
-
-  /* ---------- MOTION PREFERENCES ---------- */
-  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-  let reduceMotion = motionQuery.matches;
-
-  // Original rotation speeds.
-  const normalSpeed = 0.0005;
-  const reducedSpeed = 0.0001;
-
-  /* ---------- ANIMATION CONTROL ---------- */
-  let animationFrameId = null;
-  let isContextLost = false;
-  let isDisposed = false;
-
-  function shouldAnimate() {
-    return !isDisposed && !isContextLost && !document.hidden;
-  }
-
-  function animate() {
-    animationFrameId = null;
-
-    if (!shouldAnimate()) return;
-
-    if (!renderer.getContext() || renderer.getContext().isContextLost()) {
-      return;
-    }
-
-    const speed = reduceMotion ? reducedSpeed : normalSpeed;
-
-    planetMat.uniforms.uRot.value += speed;
-
-    if (!reduceMotion) {
+    if (!reducedMotion) {
       starsFar.rotation.z += 0.00005;
       starsNear.rotation.z += 0.0001;
     }
 
-    // Normalize against the full document so the same behaviour works on
-    // pages of different lengths, including future pages using this canvas.
-    const pageHeight = Math.max(
-      document.documentElement.scrollHeight,
-      document.body ? document.body.scrollHeight : 0,
-    );
-
-    const maxScroll = Math.max(pageHeight - window.innerHeight, 1);
-    const currentScroll = Math.max(
-      window.scrollY,
-      document.documentElement.scrollTop,
-      document.body ? document.body.scrollTop : 0,
-    );
-
-    // Scroll-driven movement remains active even when reduced-motion is
-    // enabled; that preference only reduces decorative rotation/parallax.
-    const rawProgress = THREE.MathUtils.clamp(
-      currentScroll / maxScroll,
-      0,
-      1,
-    );
-
-    // Smoothstep keeps the upward movement gradual at both ends of the page.
+    const rawProgress = THREE.MathUtils.clamp(scrollProgress, 0, 1);
     const easedProgress =
       rawProgress * rawProgress * (3 - 2 * rawProgress);
-
     const scrollLift = easedProgress * scrollTravel;
 
-    const targetX = base.x + (reduceMotion ? 0 : mouse.x * 0.2);
+    const targetX = base.x + (reducedMotion ? 0 : pointer.x * 0.2);
     group.position.x += (targetX - group.position.x) * 0.05;
 
-    const targetY = base.y + scrollLift - (reduceMotion ? 0 : mouse.y * 0.15);
-
+    const targetY =
+      base.y + scrollLift - (reducedMotion ? 0 : pointer.y * 0.15);
     group.position.y += (targetY - group.position.y) * 0.075;
-
-    renderer.render(scene, camera);
-
-    animationFrameId = window.requestAnimationFrame(animate);
   }
 
-  function startAnimation() {
-    if (!shouldAnimate()) return;
+  /* ---------- RESOURCE LIFECYCLE ---------- */
+  function dispose() {
+    const disposed = new Set();
 
-    // Prevent multiple animation loops.
-    if (animationFrameId !== null) return;
+    function disposeTexture(value) {
+      if (!value || typeof value !== "object") return;
 
-    animationFrameId = window.requestAnimationFrame(animate);
-  }
+      if (Array.isArray(value)) {
+        value.forEach(disposeTexture);
+        return;
+      }
 
-  function stopAnimation() {
-    if (animationFrameId !== null) {
-      window.cancelAnimationFrame(animationFrameId);
-      animationFrameId = null;
+      if (value.isTexture && !disposed.has(value)) {
+        disposed.add(value);
+        value.dispose();
+      }
+    }
+
+    for (const root of objects) {
+      root.traverse((node) => {
+        if (node.geometry && !disposed.has(node.geometry)) {
+          disposed.add(node.geometry);
+          node.geometry.dispose();
+        }
+
+        const materials = Array.isArray(node.material)
+          ? node.material
+          : node.material
+            ? [node.material]
+            : [];
+
+        for (const material of materials) {
+          if (material.uniforms) {
+            Object.values(material.uniforms).forEach((uniform) => {
+              disposeTexture(uniform?.value);
+            });
+          }
+
+          Object.values(material).forEach(disposeTexture);
+
+          if (!disposed.has(material)) {
+            disposed.add(material);
+            material.dispose();
+          }
+        }
+      });
     }
   }
 
-  /* ---------- BROWSER EVENT HANDLERS ---------- */
-  function handleVisibilityChange() {
-    if (document.hidden) {
-      stopAnimation();
-    } else {
-      startAnimation();
-    }
-  }
-
-  function handleContextLost(event) {
-    // Allow the browser to attempt restoring the WebGL context.
-    event.preventDefault();
-
-    isContextLost = true;
-    stopAnimation();
-
-    console.warn("Starrex Saturn: WebGL context was lost.");
-  }
-
-  function handleContextRestored() {
-    isContextLost = false;
-
-    console.info("Starrex Saturn: WebGL context restored.");
-
-    resize();
-    startAnimation();
-  }
-
-  function handleMotionPreferenceChange(event) {
-    reduceMotion = event.matches;
-  }
-
-  /* ---------- INITIALIZE ---------- */
-  try {
-    resize();
-
-    window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", handlePointerMove, {
-      passive: true,
-    });
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    canvas.addEventListener("webglcontextlost", handleContextLost, false);
-
-    canvas.addEventListener(
-      "webglcontextrestored",
-      handleContextRestored,
-      false,
-    );
-
-    if (motionQuery.addEventListener) {
-      motionQuery.addEventListener("change", handleMotionPreferenceChange);
-    } else {
-      // Compatibility with older browsers.
-      motionQuery.addListener(handleMotionPreferenceChange);
-    }
-
-    startAnimation();
-  } catch (error) {
-    isDisposed = true;
-    stopAnimation();
-
-    console.error("Starrex Saturn: Initialization failed.", error);
-  }
-})();
+  return { objects, resize, update, dispose };
+}
