@@ -9,7 +9,7 @@ This document defines the implementation boundary and tracks which parts of Phas
 ## Current baseline (restored and user-confirmed working)
 
 - The site is a multi-page vanilla frontend: Home (`index.html`), Products (`products.html`) and Contact (`contact.html`). Projects and Services are still sections on Home; their dedicated planetary pages are future work.
-- Three.js 0.160.0 is loaded from jsDelivr on all three current pages using the existing deferred classic script.
+- Three.js 0.160.0 is loaded from jsDelivr on all four current pages using the existing deferred classic script.
 - Each current page contains one fixed `canvas#planet` behind the page content.
 - `Starrex Technologies/js/main.js` is the shared ES-module entry point.
 - `Starrex Technologies/js/modules/saturn.js` is the known-working Saturn implementation. It currently owns its renderer, scene, camera, animation loop, responsive behaviour, scroll response, hidden-tab pause and WebGL safety handling.
@@ -111,7 +111,7 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 4. **5.1D — Products/Moon visual prototype (user-confirmed working):** the Moon destination page and its page-specific visual module are in place. The module uses the extracted animation-loop, viewport and visibility helpers, but remains a temporary page-local scene until the unified engine is ready. A CSS lunar fallback is shown when WebGL is unavailable. Products also has a separate graphite/mineral-silver theme with restrained lavender accents; the visible Moon-identification caption has been removed.
 5. **5.2 — Direction-aware page handoff (implemented; browser verification pending):** the new transition module preserves normal multi-page navigation, carries direction and destination through session storage, moves the outgoing planet off-screen, and animates the destination planet into position. Forward navigation travels left; backward navigation travels right. Reduced-motion users bypass the cinematic effect. The handoff currently covers the existing Saturn and Moon destinations; Earth and Mars routes become active when their pages exist.
 6. **5.3 — Shared engine:** consolidate renderer/scene lifecycle behind the agreed engine boundary only after the current Saturn baseline and Moon/transition paths have been verified across desktop, mobile, keyboard and reduced-motion use.
-7. **5.4 — Earth prototype:** add Earth for the future Projects page and test the relevant navigation path before adding Mars.
+7. **5.4 — Earth prototype (implemented; browser verification pending):** the dedicated Projects page and Earth scene are now present. The page uses an Earth-specific ocean/navy theme, a thin blue atmospheric rim, restrained cloud detail, a detailed hosted surface texture with a local fallback, and the existing shared lifecycle helpers. Navigation links now point to `projects.html`; the existing transition controller maps Moon → Earth as forward travel and Earth → Moon as backward travel. Verify the complete Products ↔ Projects path before proceeding.
 8. **5.5 — Mars prototype:** add Mars for the future Services page only after the engine and existing planet paths are stable.
 9. **5.6 — Polish:** tune timing, atmosphere accents, responsive composition, texture budgets and documentation.
 
@@ -126,8 +126,10 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 ## Acceptance criteria for the current planetary baseline and handoff
 
 - Home and Contact still render Saturn with the same recognizable procedural surface, rings, subdued brightness, scale and right-side placement.
-- Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.\n- Projects renders Earth as a realistic blue planet with a restrained atmospheric rim, cloud detail and no rings; a fallback remains if the detailed texture cannot load.
-- Products uses a distinct lunar graphite/silver theme rather than reusing the Saturn/Home purple atmosphere.\n- Projects uses a distinct deep-ocean/navy and atmospheric-blue theme rather than reusing the Moon or Saturn palettes. Its content describes capabilities without fabricating client work.
+- Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.
+- Projects renders Earth as a blue planet with a restrained atmospheric rim and cloud detail, no rings, and a local surface fallback if the hosted texture cannot load.\n- Projects renders Earth as a realistic blue planet with a restrained atmospheric rim, cloud detail and no rings; a fallback remains if the detailed texture cannot load.
+- Products uses a distinct lunar graphite/silver theme rather than reusing the Saturn/Home purple atmosphere.
+- Projects uses a distinct deep-ocean/navy and atmospheric-blue theme. Its content describes project capabilities without fabricating client work.\n- Projects uses a distinct deep-ocean/navy and atmospheric-blue theme rather than reusing the Moon or Saturn palettes. Its content describes capabilities without fabricating client work.
 - Planet-to-planet page links perform the correct leftward forward or rightward backward handoff; reduced-motion navigation remains immediate.
 - Saturn still moves upward with page scroll and returns when scrolling upward.
 - Each current document initializes only its selected planet scene. After migration is complete, the shared engine must own the single renderer and animation loop; until then, Saturn and Moon are separate page-local scene modules.
