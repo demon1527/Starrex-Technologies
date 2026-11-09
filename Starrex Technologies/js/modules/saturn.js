@@ -202,11 +202,8 @@
         const k = (y * w + x) * 4;
 
         img.data[k] = col[0] * (1 - polarMix) + 138 * polarMix;
-
         img.data[k + 1] = col[1] * (1 - polarMix) + 140 * polarMix;
-
         img.data[k + 2] = col[2] * (1 - polarMix) + 132 * polarMix;
-
         img.data[k + 3] = 255;
       }
     }
@@ -364,8 +361,8 @@
           vec3 rc = mix(vec3(grey), tex.rgb, 0.6);
 
           float ringOpacity = clamp(tex.a * 1.22 + 0.055, 0.0, 0.98);
-          // Slightly darker rings keep foreground text and cards legible.
-          gl_FragColor = vec4(rc * (1.0 - 0.78 * shadow) * 0.78, ringOpacity);
+          // Lower ring luminance so the background stays behind the content.
+          gl_FragColor = vec4(rc * (1.0 - 0.78 * shadow) * 0.62, ringOpacity);
         }
       `,
 
@@ -468,13 +465,13 @@
         float mu = max(dot(n, v), 0.0);
 
         vec3 col = tex * (0.075 + 1.32 * soft * (1.0 - 0.72 * shadow));
-
         col *= 0.6 + 0.4 * pow(mu, 0.6);
-        col *= 0.78;
 
         float fres = pow(1.0 - mu, 3.0);
-
         col += vec3(0.85, 0.82, 0.75) * fres * 0.22 * soft;
+
+        // Apply the final brightness reduction to both the surface and rim light.
+        col *= 0.62;
 
         gl_FragColor = vec4(col, 1.0);
       }
@@ -511,7 +508,7 @@
             3.0
           );
 
-          gl_FragColor = vec4(0.85, 0.80, 0.70, 1.0) * i * 0.72;
+          gl_FragColor = vec4(0.85, 0.80, 0.70, 1.0) * i * 0.5;
         }
       `,
 
