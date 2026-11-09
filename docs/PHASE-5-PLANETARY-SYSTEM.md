@@ -96,7 +96,9 @@ Because the current site uses separate HTML pages, the transition handoff uses a
 - Pause rendering when the tab is hidden; recover safely from WebGL context loss.
 - Provide a clean static background fallback if WebGL or Three.js is unavailable.
 - Keep all navigation labels, page content, forms and controls as ordinary HTML, not embedded in the canvas.
-- Ensure reduced-motion users can navigate without cinematic travel.\n- Carry the direction across a normal document load without a SPA rewrite; if session storage is unavailable, fall back to native navigation.\n- Carry the direction across a normal document load without a SPA rewrite; if storage is unavailable, fall back to native navigation.
+- Ensure reduced-motion users can navigate without cinematic travel.
+- Carry the direction across a normal document load without a SPA rewrite; if session storage is unavailable, fall back to native navigation.
+- Carry the direction across a normal document load without a SPA rewrite; if storage is unavailable, fall back to native navigation.
 - Do not add paid APIs, backend services, or new frameworks.
 
 ## Incremental implementation sequence
@@ -124,7 +126,9 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 ## Acceptance criteria for 5.1
 
 - Home and Contact still render Saturn with the same recognizable procedural surface, rings, subdued brightness, scale and right-side placement.
-- Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.\n- Products uses a distinct lunar graphite/silver theme rather than reusing the Saturn/Home purple atmosphere.\n- Planet-to-planet page links perform the correct leftward forward or rightward backward handoff; reduced-motion navigation remains immediate.
+- Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.
+- Products uses a distinct lunar graphite/silver theme rather than reusing the Saturn/Home purple atmosphere.
+- Planet-to-planet page links perform the correct leftward forward or rightward backward handoff; reduced-motion navigation remains immediate.
 - Saturn still moves upward with page scroll and returns when scrolling upward.
 - Each current document initializes only its selected planet scene. After migration is complete, the shared engine must own the single renderer and animation loop; until then, Saturn and Moon are separate page-local scene modules.
 - No duplicate canvas or renderer initialization within a page; page identity guards ensure only the matching planet module starts.
