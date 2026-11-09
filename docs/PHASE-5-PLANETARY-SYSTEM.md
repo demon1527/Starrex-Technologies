@@ -127,9 +127,11 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 
 - Home and Contact still render Saturn with the same recognizable procedural surface, rings, subdued brightness, scale and right-side placement.
 - Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.
-- Projects renders Earth as a blue planet with a restrained atmospheric rim and cloud detail, no rings, and a local surface fallback if the hosted texture cannot load.\n- Projects renders Earth as a realistic blue planet with a restrained atmospheric rim, cloud detail and no rings; a fallback remains if the detailed texture cannot load.
+- Projects renders Earth as a blue planet with a restrained atmospheric rim and cloud detail, no rings, and a local surface fallback if the hosted texture cannot load.
+- Projects renders Earth as a realistic blue planet with a restrained atmospheric rim, cloud detail and no rings; a fallback remains if the detailed texture cannot load.
 - Products uses a distinct lunar graphite/silver theme rather than reusing the Saturn/Home purple atmosphere.
-- Projects uses a distinct deep-ocean/navy and atmospheric-blue theme. Its content describes project capabilities without fabricating client work.\n- Services uses a distinct rust-red, warm charcoal and muted copper theme. Service descriptions are capability areas, not unsupported guarantees; scope and terms are agreed per enquiry.\n- Projects uses a distinct deep-ocean/navy and atmospheric-blue theme rather than reusing the Moon or Saturn palettes. Its content describes capabilities without fabricating client work.
+- Projects uses a distinct deep-ocean/navy and atmospheric-blue theme rather than reusing the Moon or Saturn palettes. Its content describes capabilities without fabricating client work.
+- Services uses a distinct rust-red, warm charcoal and muted copper theme. Service descriptions are capability areas, not unsupported guarantees; scope and terms are agreed per enquiry.
 - Planet-to-planet page links perform the correct leftward forward or rightward backward handoff; reduced-motion navigation remains immediate.
 - Saturn still moves upward with page scroll and returns when scrolling upward.
 - Each current document initializes only its selected planet scene. After migration is complete, the shared engine must own the single renderer and animation loop; until then, Saturn and Moon are separate page-local scene modules.
