@@ -1,5 +1,6 @@
 import { createAnimationLoop } from "./animation-loop.js";
 import { createViewportController } from "./viewport.js";
+import { createVisibilityController } from "./visibility.js";
 
 /* =========================================================
    STARREX – Rotating Saturn background (Three.js)
@@ -563,6 +564,7 @@ import { createViewportController } from "./viewport.js";
   let scrollTravel = 9.4;
 
   let viewportController = null;
+  let visibilityController = null;
 
   function updateSaturnComposition({ portrait, halfViewWidth }) {
     // Preserve the established Saturn position and responsive scale.
@@ -671,14 +673,6 @@ import { createViewportController } from "./viewport.js";
   }
 
   /* ---------- BROWSER EVENT HANDLERS ---------- */
-  function handleVisibilityChange() {
-    if (document.hidden) {
-      stopAnimation();
-    } else {
-      startAnimation();
-    }
-  }
-
   function handleContextLost(event) {
     // Allow the browser to attempt restoring the WebGL context.
     event.preventDefault();
@@ -711,11 +705,19 @@ import { createViewportController } from "./viewport.js";
     });
     viewportController.resize();
 
+    visibilityController = createVisibilityController({
+      onVisibilityChange: (hidden) => {
+        if (hidden) {
+          stopAnimation();
+        } else {
+          startAnimation();
+        }
+      },
+    });
+
     window.addEventListener("pointermove", handlePointerMove, {
       passive: true,
     });
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     canvas.addEventListener("webglcontextlost", handleContextLost, false);
 
@@ -735,6 +737,7 @@ import { createViewportController } from "./viewport.js";
     startAnimation();
   } catch (error) {
     isDisposed = true;
+    visibilityController?.dispose();
     viewportController?.dispose();
     animationLoop.dispose();
 
