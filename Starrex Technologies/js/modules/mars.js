@@ -176,7 +176,7 @@ import { createVisibilityController } from "./visibility.js";
   const textureLoader = new THREE.TextureLoader();
   textureLoader.setCrossOrigin("anonymous");
   textureLoader.load(
-    "https://www.solarsystemscope.com/textures/download/2k_mars.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Solarsystemscope_texture_2k_mars.jpg/1600px-Solarsystemscope_texture_2k_mars.jpg?20201026210255",
     (loadedTexture) => {
       if (isDisposed) {
         loadedTexture.dispose();
@@ -197,8 +197,12 @@ import { createVisibilityController } from "./visibility.js";
     },
     undefined,
     (error) => {
+      // Explicitly retain and re-apply the generated map if the remote image
+      // cannot be fetched, so the material never falls back to an untextured sphere.
+      marsMaterial.map = surfaceTexture;
+      marsMaterial.needsUpdate = true;
       console.warn(
-        "Starrex Mars: Detailed surface map unavailable; keeping the procedural fallback.",
+        "Starrex Mars: Hosted surface map failed to load; retaining the local textured fallback.",
         error,
       );
     },
