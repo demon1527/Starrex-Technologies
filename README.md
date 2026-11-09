@@ -42,7 +42,7 @@ The Products and Projects sections describe the studio's direction and capabilit
 
 ## Features
 
-- **Shared planetary rendering engine:** one Three.js renderer, scene, camera and animation loop, with Saturn supplied as a separate planet module.
+- **Saturn background:** the proven Saturn implementation remains a self-contained module and currently owns its Three.js scene, renderer and animation loop. The shared multi-planet engine is planned, not yet implemented.
 - **Motion and lifecycle handling:** pointer/scroll response, responsive composition, reduced-motion awareness, hidden-tab pause, WebGL context recovery and a static fallback when WebGL is unavailable.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
@@ -83,12 +83,10 @@ There is no npm install or compilation/build step in the current website.
     ├── js/
     │   ├── main.js
     │   ├── modules/
-    │   │   ├── planet-engine.js
+    │   │   ├── saturn.js
     │   │   ├── navigation.js
     │   │   ├── audio.js
     │   │   └── footer.js
-    │   ├── planets/
-    │   │   └── saturn.js
     │   └── pages/
     │       └── contact.js
     └── assets/
@@ -132,8 +130,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Homepage layout and responsive styles | `css/pages/home.css` |
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
-| Shared WebGL renderer, scene, camera and animation lifecycle | `js/modules/planet-engine.js` |
-| Saturn planet geometry, procedural textures and visual behaviour | `js/planets/saturn.js` |
+| Saturn background, Three.js scene, renderer and animation lifecycle | `js/modules/saturn.js` |
 | Ambient sound | `js/modules/audio.js` |
 | Navigation and active-section behaviour | `js/modules/navigation.js` |
 | Shared footer utilities | `js/modules/footer.js` |
