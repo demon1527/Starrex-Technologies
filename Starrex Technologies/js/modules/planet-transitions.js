@@ -64,7 +64,16 @@ function createOverlay() {
 }
 
 function beginArrival(body, overlay, direction) {
-  body.classList.add(`planet-transition-in-${direction}`);
+  let isComplete = false;
+
+  const cleanup = () => {
+    if (isComplete) return;
+    isComplete = true;
+    body.classList.remove(`planet-transition-in-${direction}`);
+    overlay.removeEventListener("animationend", finishArrival);
+    overlay.remove();
+  };
+
   const finishArrival = (event) => {
     if (
       event.target !== overlay ||
@@ -72,12 +81,12 @@ function beginArrival(body, overlay, direction) {
       event.animationName !== "planet-transition-reveal"
     ) return;
 
-    body.classList.remove(`planet-transition-in-${direction}`);
-    overlay.removeEventListener("animationend", finishArrival);
-    overlay.remove();
+    cleanup();
   };
 
+  body.classList.add(`planet-transition-in-${direction}`);
   overlay.addEventListener("animationend", finishArrival);
+  window.setTimeout(cleanup, 1200);
 }
 
 function canIntercept(event, link) {
