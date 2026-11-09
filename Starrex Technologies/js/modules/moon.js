@@ -138,7 +138,14 @@ import { createVisibilityController } from "./visibility.js";
     return texture;
   }
 
-  const lunarTexture = createLunarTexture();
+  let lunarTexture;
+  try {
+    lunarTexture = createLunarTexture();
+  } catch (error) {
+    renderer.dispose();
+    console.warn("Starrex Moon: Lunar texture generation failed.", error);
+    return;
+  }
 
   // A slightly smaller, unadorned rocky body: no rings and no atmosphere.
   const moonMaterial = new THREE.MeshStandardMaterial({
