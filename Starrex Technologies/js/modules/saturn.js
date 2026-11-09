@@ -364,7 +364,8 @@
           vec3 rc = mix(vec3(grey), tex.rgb, 0.6);
 
           float ringOpacity = clamp(tex.a * 1.22 + 0.055, 0.0, 0.98);
-          gl_FragColor = vec4(rc * (1.0 - 0.78 * shadow), ringOpacity);
+          // Slightly darker rings keep foreground text and cards legible.
+          gl_FragColor = vec4(rc * (1.0 - 0.78 * shadow) * 0.78, ringOpacity);
         }
       `,
 
@@ -469,6 +470,7 @@
         vec3 col = tex * (0.075 + 1.32 * soft * (1.0 - 0.72 * shadow));
 
         col *= 0.6 + 0.4 * pow(mu, 0.6);
+        col *= 0.78;
 
         float fres = pow(1.0 - mu, 3.0);
 
@@ -509,7 +511,7 @@
             3.0
           );
 
-          gl_FragColor = vec4(0.85, 0.80, 0.70, 1.0) * i * 1.1;
+          gl_FragColor = vec4(0.85, 0.80, 0.70, 1.0) * i * 0.72;
         }
       `,
 
@@ -545,7 +547,7 @@
         color: 0xfff4e0,
         size,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.62,
         depthWrite: false,
       }),
     );
@@ -635,14 +637,25 @@
 
     // Normalize against the full document so the same behaviour works on
     // pages of different lengths, including future pages using this canvas.
-    const maxScroll = Math.max(
-      document.documentElement.scrollHeight - window.innerHeight,
-      1,
+    const pageHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0,
     );
 
-    const rawProgress = reduceMotion
-      ? 0
-      : THREE.MathUtils.clamp(window.scrollY / maxScroll, 0, 1);
+    const maxScroll = Math.max(pageHeight - window.innerHeight, 1);
+    const currentScroll = Math.max(
+      window.scrollY,
+      document.documentElement.scrollTop,
+      document.body ? document.body.scrollTop : 0,
+    );
+
+    // Scroll-driven movement remains active even when reduced-motion is
+    // enabled; that preference only reduces decorative rotation/parallax.
+    const rawProgress = THREE.MathUtils.clamp(
+      currentScroll / maxScroll,
+      0,
+      1,
+    );
 
     // Smoothstep keeps the upward movement gradual at both ends of the page.
     const easedProgress =
@@ -652,8 +665,9 @@
 
     group.position.x += (base.x + mouse.x * 0.2 - group.position.x) * 0.05;
 
-    group.position.y +=
-      (base.y + scrollLift - mouse.y * 0.15 - group.position.y) * 0.05;
+    const targetY = base.y + scrollLift - (reduceMotion ? 0 : mouse.y * 0.15);
+
+    group.position.y += (targetY - group.position.y) * 0.075;
 
     renderer.render(scene, camera);
 
