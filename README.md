@@ -12,20 +12,20 @@ The visual identity includes the established procedural Saturn scene on Home and
 | --- | --- | --- |
 | Home | `Starrex Technologies/index.html#home` | Studio introduction and overview |
 | Products | `Starrex Technologies/products.html` | Product directions and principles, presented with the Moon planetary visual |
-| Projects | `Starrex Technologies/index.html#projects` | Project capabilities: web experiences, custom software and automation |
+| Projects | `Starrex Technologies/projects.html` | Project capabilities and delivery approach, presented with the Earth planetary visual |
 | Services | `Starrex Technologies/index.html#services` | Ways the studio can help |
 | About | `Starrex Technologies/index.html#about` | Studio introduction and values |
 | Contact | `Starrex Technologies/contact.html` | Contact details and project enquiry form |
 
-The Products page is the first Moon destination prototype: a grey, cratered lunar surface with hard lighting and no atmosphere. Its content presents four product directions—digital platforms, workflow tools, automation utilities and digital resources. These are areas of focus, not a live catalogue. No individual product names, release dates, prices or availability are claimed.
+The Projects page is the Earth destination: a blue planet with a restrained atmospheric rim, cloud detail and no rings. Its content explains project capabilities and the delivery approach; it does not invent client case studies or claim unverified outcomes.\n\nThe Products page is the first Moon destination prototype: a grey, cratered lunar surface with hard lighting and no atmosphere. Its content presents four product directions—digital platforms, workflow tools, automation utilities and digital resources. These are areas of focus, not a live catalogue. No individual product names, release dates, prices or availability are claimed.
 
 ## Features
 
-- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. A static CSS lunar fallback appears when WebGL is unavailable.
+- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. Projects has an Earth scene with a detailed hosted surface texture, local fallback map, thin atmospheric rim and restrained cloud layer. A static CSS planet fallback remains available when WebGL or external textures are unavailable.
 - **Planetary page transitions:** normal multi-page navigation is preserved. A short outgoing/incoming handoff carries the direction across the document load: forward navigation travels left and backward navigation travels right. Reduced-motion preferences bypass the cinematic effect.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
-- **Dedicated Products page:** responsive lunar-themed product-direction overview with a distinct graphite, mineral-silver and restrained lavender palette, separate from the Saturn/Home atmosphere.
+- **Dedicated Products page:** responsive lunar-themed product-direction overview with a distinct graphite, mineral-silver and restrained lavender palette, separate from the Saturn/Home atmosphere.\n- **Dedicated Projects page:** responsive project-capability overview with a distinct deep-ocean navy, atmospheric blue and restrained cyan palette. Capability categories are clearly distinguished from completed client case studies.
 - **Dedicated contact page:** enquiry form with client-side validation, a honeypot field and delivery through FormSubmit.
 - **Accessibility basics:** semantic landmarks, skip links, visible keyboard focus and live form feedback.
 - **Page metadata:** descriptive titles/descriptions, Open Graph basics and Twitter summary metadata.
@@ -124,7 +124,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
 | Saturn background, scene construction and visual updates | `js/modules/saturn.js` |
-| Products Moon scene and procedural lunar surface | `js/modules/moon.js` |
+| Products Moon scene and procedural lunar surface | `js/modules/moon.js` |\n| Projects Earth scene, atmosphere and cloud layer | `js/modules/earth.js` |
 | Shared single-frame scheduling helper | `js/modules/animation-loop.js` |
 | Shared renderer/camera viewport sizing | `js/modules/viewport.js` |
 | Shared document visibility lifecycle | `js/modules/visibility.js` |
@@ -135,7 +135,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 
 ## SEO and deployment notes
 
-- All three HTML pages include unique titles, descriptions, Open Graph title/description/site metadata and Twitter summary metadata.
+- All four HTML pages include unique titles, descriptions, Open Graph title/description/site metadata and Twitter summary metadata.
 - The favicon and logo paths are present in the repository.
 - A basic `robots.txt` is included in the website root folder.
 - A canonical URL and XML sitemap have intentionally **not** been hard-coded yet: the repository does not identify a confirmed public production domain. Add both after the final deployment URL is known; do not use a guessed GitHub Pages or hosting URL.
