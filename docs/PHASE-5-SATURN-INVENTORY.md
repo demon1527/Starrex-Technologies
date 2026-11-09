@@ -46,9 +46,9 @@ The module builds the visual locally; it does not download planet textures.
 
 ## 4. Layout, resize and interaction
 
-- The renderer is sized to the viewport on initialization and window resize.
-- Camera aspect and projection are updated after resize.
-- Saturn's responsive placement is calculated from camera field of view and viewport aspect.
+- Renderer sizing and perspective-camera aspect/projection updates are handled by the shared `js/modules/viewport.js` controller.
+- The controller reports viewport dimensions, aspect, portrait mode and half-view width to a Saturn callback.
+- Saturn's responsive placement remains Saturn-specific and is calculated from the supplied half-view width.
 - Portrait mode uses a smaller group scale and a lower starting position.
 - Pointer movement updates a private mouse target; the animation loop eases the planet toward the target.
 - Pointer parallax is disabled when reduced motion is enabled.
@@ -174,17 +174,16 @@ The engine's `frameContext` should provide measured values such as elapsed time,
 
 This contract is a design target only. No engine or factory code is claimed to exist yet.
 
-## 11. Migration progress — frame scheduler extracted
+## 11. Migration progress — scheduler and viewport extracted
 
-The first controlled migration increment is now present on `feature/phase-5-planetary-system`:
+The first two controlled migration increments are now present on `feature/phase-5-planetary-system`:
 
-- Added `js/modules/animation-loop.js`, a small reusable scheduler with guarded `start`, `stop` and `dispose` methods.
-- `js/modules/saturn.js` imports the helper and delegates all requestAnimationFrame scheduling to it.
-- The Saturn frame callback still performs the same rotation, star motion, scroll easing, pointer interpolation and render operations.
-- The scheduler checks the caller's `shouldRun` predicate before and after each frame and avoids duplicate pending frame requests.
-- The Saturn initialization error path disposes the scheduler.
-- Direct requestAnimationFrame/cancelAnimationFrame references have been removed from `saturn.js`.
+- Added `js/modules/animation-loop.js`, a reusable scheduler with guarded `start`, `stop` and `dispose` methods. Saturn delegates all requestAnimationFrame scheduling to it.
+- Added `js/modules/viewport.js` to own renderer sizing, camera aspect/projection updates and the window resize listener.
+- The viewport controller reports dimensions, aspect, portrait mode and half-view width; Saturn retains its established composition values and scroll-travel settings in a callback.
+- Context restoration asks the viewport controller to resize again. Initialization failure disposes the controller and animation scheduler.
+- Saturn's geometry, shaders, visual construction, scroll calculation, pointer handling, Three.js loading order and remaining browser lifecycle listeners are unchanged.
 
-**Not yet extracted:** renderer, scene, camera, resize handling, visibility handling, WebGL context lifecycle, reduced-motion listeners, pointer/scroll measurement, Saturn resources and explicit resource teardown.
+**Not yet extracted:** renderer/scene/camera ownership, visibility handling, WebGL context lifecycle, reduced-motion listeners, pointer/scroll measurement, Saturn resources and complete teardown.
 
-This increment must pass the user's Home and Contact browser checks before any further lifecycle responsibility is moved.
+The user must complete the Home and Contact browser regression checks for these increments before another responsibility is moved.
