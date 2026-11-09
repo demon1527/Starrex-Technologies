@@ -16,7 +16,7 @@ This document defines the implementation boundary and tracks which parts of Phas
 - The experimental `planet-engine.js` and `js/planets/saturn.js` extraction were removed after causing Saturn to disappear. They are not part of the current codebase.
 - Navigation is shared through `js/modules/navigation.js`; homepage navigation currently uses section anchors.
 - The user has pulled the rollback and confirmed Saturn is visible and working again on the current branch.
-- The Products page now has a page-specific Moon scene prototype in `js/modules/moon.js`. It uses the shared frame-loop, viewport and visibility helpers, but still creates its own page-local renderer; it is not yet integrated into a unified planet engine. The user has confirmed the Moon scene is working on their local test.
+- The Products page now has a page-specific Moon scene prototype in `js/modules/moon.js`. It uses the shared frame-loop, viewport and visibility helpers, but still creates its own page-local renderer; it is not yet integrated into a unified planet engine. The user has confirmed the Moon scene is working on their local test. The Projects/Earth destination has now been implemented on the feature branch; browser verification is pending.
 - This working Saturn module is the regression baseline. Do not modify or replace it until a specific, independently verifiable migration step is ready.
 
 ## Planet and page mapping
@@ -25,7 +25,7 @@ This document defines the implementation boundary and tracks which parts of Phas
 | --- | --- | --- |
 | Home | `index.html` / home page | Saturn |
 | Products | `products.html` | Moon |
-| Projects | Projects page (future) | Earth |
+| Projects | `projects.html` | Earth |
 | Services | Services page (future) | Mars |
 | About | About section on Home | Saturn |
 
@@ -126,8 +126,8 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 ## Acceptance criteria for the current planetary baseline and handoff
 
 - Home and Contact still render Saturn with the same recognizable procedural surface, rings, subdued brightness, scale and right-side placement.
-- Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.
-- Products uses a distinct lunar graphite/silver theme rather than reusing the Saturn/Home purple atmosphere.
+- Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.\n- Projects renders Earth as a realistic blue planet with a restrained atmospheric rim, cloud detail and no rings; a fallback remains if the detailed texture cannot load.
+- Products uses a distinct lunar graphite/silver theme rather than reusing the Saturn/Home purple atmosphere.\n- Projects uses a distinct deep-ocean/navy and atmospheric-blue theme rather than reusing the Moon or Saturn palettes. Its content describes capabilities without fabricating client work.
 - Planet-to-planet page links perform the correct leftward forward or rightward backward handoff; reduced-motion navigation remains immediate.
 - Saturn still moves upward with page scroll and returns when scrolling upward.
 - Each current document initializes only its selected planet scene. After migration is complete, the shared engine must own the single renderer and animation loop; until then, Saturn and Moon are separate page-local scene modules.
