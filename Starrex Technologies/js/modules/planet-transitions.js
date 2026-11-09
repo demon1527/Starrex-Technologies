@@ -92,6 +92,66 @@ function beginArrival(body, overlay, direction, onComplete) {
   window.setTimeout(cleanup, 1200);
 }
 
+const PREFETCHED_RESOURCES = new Set();
+
+function addPrefetchHint(url, as = "") {
+  if (PREFETCHED_RESOURCES.has(url)) return;
+  PREFETCHED_RESOURCES.add(url);
+
+  const hint = document.createElement("link");
+  hint.rel = "prefetch";
+  hint.href = url;
+  if (as) hint.as = as;
+  if (as === "image") hint.crossOrigin = "anonymous";
+  document.head.append(hint);
+}
+
+function prefetchDestination(destination) {
+  const connection = navigator.connection;
+  if (connection?.saveData) return;
+  if (["slow-2g", "2g"].includes(connection?.effectiveType)) return;
+
+  addPrefetchHint(destination.href);
+
+  // Earth uses hosted Blue Marble maps. Fetch them while the visitor is
+  // considering the Projects page, rather than after its arrival animation.
+  if (getDestinationPlanet(destination.pathname) === "earth") {
+    addPrefetchHint(
+      "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg",
+      "image",
+    );
+    addPrefetchHint(
+      "https://threejs.org/examples/textures/planets/earth_clouds_1024.png",
+      "image",
+    );
+  }
+}
+
+function getPlanetLinkFromEvent(event) {
+  const target = event.target instanceof Element
+    ? event.target
+    : event.target?.parentElement;
+  const link = target?.closest("a[href]");
+  if (!link) return null;
+
+  let destination;
+  try {
+    destination = new URL(link.href, window.location.href);
+  } catch {
+    return null;
+  }
+
+  if (
+    destination.origin !== window.location.origin ||
+    destination.pathname === window.location.pathname ||
+    !getDestinationPlanet(destination.pathname)
+  ) {
+    return null;
+  }
+
+  return destination;
+}
+
 function canIntercept(event, link) {
   if (
     event.defaultPrevented ||
@@ -123,6 +183,17 @@ export function initPlanetTransitions() {
       transitionActive = false;
     });
   }
+
+  // Warm the next document (and Earth's large maps) on genuine navigation
+  // intent, without downloading every page or delaying the current one.
+  const handlePrefetchIntent = (event) => {
+    const destination = getPlanetLinkFromEvent(event);
+    if (destination) prefetchDestination(destination);
+  };
+
+  document.addEventListener("pointerover", handlePrefetchIntent, { passive: true });
+  document.addEventListener("focusin", handlePrefetchIntent);
+  document.addEventListener("touchstart", handlePrefetchIntent, { passive: true });
 
   document.addEventListener("click", (event) => {
     if (transitionActive) {
