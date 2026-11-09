@@ -6,6 +6,8 @@
  * planet-specific resize/update/dispose hooks.
  */
 
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
 const enginesByCanvas = new WeakMap();
 
 function showStaticFallback(canvas, reason, error) {
@@ -24,12 +26,6 @@ export function initPlanetEngine({ planetFactory } = {}) {
 
   if (typeof planetFactory !== "function") {
     showStaticFallback(canvas, "No planet factory was supplied.");
-    return null;
-  }
-
-  const THREE = window.THREE;
-  if (!THREE) {
-    showStaticFallback(canvas, "Three.js is unavailable; using the static background.");
     return null;
   }
 
