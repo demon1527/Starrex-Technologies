@@ -11,14 +11,18 @@
       content="Starrex Technologies builds modern websites, custom software and digital solutions for businesses."
     />
 
+    <link rel="icon" href="assets/Icons/starrex-icon.png" type="image/png" />
+
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <!-- replace your #wireframe canvas -->
+    <!-- Three.js background -->
     <canvas id="planet"></canvas>
+
+    <!-- Three.js library -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    <script src="script.js"></script>
+
     <header>
       <nav>
         <a href="#home" class="logo">
@@ -41,6 +45,7 @@
     </header>
 
     <main>
+      <!-- HERO SECTION -->
       <section id="home" class="hero">
         <p>INNOVATE · AUTOMATE · GROW</p>
 
@@ -53,12 +58,14 @@
           <a href="#contact">Start a Project</a>
         </div>
       </section>
-      <!-- OUR DIVISIONS -->
 
+      <!-- OUR DIVISIONS -->
       <section class="divisions" id="services">
         <div class="section-heading">
           <p>WHAT WE DO</p>
+
           <h2>Technology That Works For You.</h2>
+
           <span>
             From ready-made digital products to custom software, we turn ideas
             into practical digital solutions.
@@ -67,7 +74,6 @@
 
         <div class="division-container">
           <!-- DIGITAL PRODUCTS -->
-
           <div class="division-card">
             <div class="card-icon">✦</div>
 
@@ -82,7 +88,6 @@
           </div>
 
           <!-- WEB DEVELOPMENT -->
-
           <div class="division-card">
             <div class="card-icon">⌘</div>
 
@@ -97,7 +102,6 @@
           </div>
 
           <!-- SOFTWARE STUDIO -->
-
           <div class="division-card">
             <div class="card-icon">⌘</div>
 
@@ -112,8 +116,8 @@
           </div>
         </div>
       </section>
-      <!-- ABOUT STARREX -->
 
+      <!-- ABOUT STARREX -->
       <section class="about-section" id="about">
         <div class="about-content">
           <p class="about-label">WHO WE ARE</p>
@@ -155,6 +159,8 @@
         </div>
       </section>
     </main>
+
+    <!-- AMBIENT SOUND CONTROL -->
     <button
       id="sound-toggle"
       class="sound-toggle"
@@ -176,8 +182,11 @@
         <path class="slash" d="M17 9l5 6M22 9l-5 6" />
       </svg>
     </button>
+
+    <!-- Load the Three.js scene once, after the DOM is ready -->
     <script type="module" src="script.js"></script>
+
+    <!-- Ambient sound system -->
     <script src="sound.js"></script>
   </body>
 </html>
-<link rel="icon" href="assets/images/starrex-icon.png" type="image/png" />
