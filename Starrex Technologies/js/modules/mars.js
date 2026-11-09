@@ -35,7 +35,7 @@ import { createVisibilityController } from "./visibility.js";
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.65));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.06;
+  renderer.toneMappingExposure = 0.88;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
@@ -88,8 +88,8 @@ import { createVisibilityController } from "./visibility.js";
       }
       context.closePath();
       context.fillStyle = random() > .5
-        ? `rgba(66,31,27,${.12 + random() * .22})`
-        : `rgba(229,153,105,${.07 + random() * .16})`;
+        ? `rgba(48,20,18,${.22 + random() * .28})`
+        : `rgba(226,139,91,${.08 + random() * .13})`;
       context.fill();
       context.restore();
     }
@@ -157,8 +157,10 @@ import { createVisibilityController } from "./visibility.js";
 
   const marsMaterial = new THREE.MeshStandardMaterial({
     map: surfaceTexture,
-    roughness: 0.98,
+    roughness: 0.96,
     metalness: 0,
+    bumpMap: surfaceTexture,
+    bumpScale: 0.028,
   });
   const mars = new THREE.Mesh(
     new THREE.SphereGeometry(1.94, 128, 128),
@@ -171,7 +173,7 @@ import { createVisibilityController } from "./visibility.js";
   const hazeMaterial = new THREE.ShaderMaterial({
     uniforms: {
       hazeColor: { value: new THREE.Color(0xd98762) },
-      hazeStrength: { value: .19 },
+      hazeStrength: { value: .075 },
     },
     vertexShader: `
       varying vec3 vNormal;
@@ -206,14 +208,14 @@ import { createVisibilityController } from "./visibility.js";
 
   document.body.classList.add("mars-scene-ready");
 
-  const keyLight = new THREE.DirectionalLight(0xffdfc8, 2.75);
+  const keyLight = new THREE.DirectionalLight(0xffd2b5, 1.85);
   keyLight.position.set(-5.2, 3.4, 5.5);
   scene.add(keyLight);
 
-  const fillLight = new THREE.DirectionalLight(0x9a5946, .2);
+  const fillLight = new THREE.DirectionalLight(0x9a5946, .12);
   fillLight.position.set(4, -2, 3);
   scene.add(fillLight);
-  scene.add(new THREE.AmbientLight(0x704b40, .18));
+  scene.add(new THREE.AmbientLight(0x704b40, .12));
 
   const starPositions = [];
   for (let i = 0; i < 560; i += 1) {
