@@ -65,19 +65,19 @@ function createOverlay() {
 
 function beginArrival(body, overlay, direction) {
   body.classList.add(`planet-transition-in-${direction}`);
-  overlay.addEventListener(
-    "animationend",
-    (event) => {
-      if (
-        event.target !== overlay ||
-        event.pseudoElement ||
-        event.animationName !== "planet-transition-reveal"
-      ) return;
-      body.classList.remove(`planet-transition-in-${direction}`);
-      overlay.remove();
-    },
-    { once: true },
-  );
+  const finishArrival = (event) => {
+    if (
+      event.target !== overlay ||
+      event.pseudoElement ||
+      event.animationName !== "planet-transition-reveal"
+    ) return;
+
+    body.classList.remove(`planet-transition-in-${direction}`);
+    overlay.removeEventListener("animationend", finishArrival);
+    overlay.remove();
+  };
+
+  overlay.addEventListener("animationend", finishArrival);
 }
 
 function canIntercept(event, link) {
@@ -168,19 +168,18 @@ export function initPlanetTransitions() {
       window.location.assign(destination.href);
     };
 
-    overlay.addEventListener(
-      "animationend",
-      (animationEvent) => {
-        if (
-          animationEvent.target === overlay &&
-          !animationEvent.pseudoElement &&
-          animationEvent.animationName === "planet-transition-cover"
-        ) {
-          navigate();
-        }
-      },
-      { once: true },
-    );
+    const handleCoverComplete = (animationEvent) => {
+      if (
+        animationEvent.target !== overlay ||
+        animationEvent.pseudoElement ||
+        animationEvent.animationName !== "planet-transition-cover"
+      ) return;
+
+      overlay.removeEventListener("animationend", handleCoverComplete);
+      navigate();
+    };
+
+    overlay.addEventListener("animationend", handleCoverComplete);
 
     // Fallback for browsers that do not dispatch animationend.
     window.setTimeout(navigate, 820);
