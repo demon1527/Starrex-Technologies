@@ -123,7 +123,7 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 - Adding all four planets in one large change.
 - Changing the current Saturn artwork or scroll behaviour during the extraction step.
 
-## Acceptance criteria for 5.1
+## Acceptance criteria for the current planetary baseline and handoff
 
 - Home and Contact still render Saturn with the same recognizable procedural surface, rings, subdued brightness, scale and right-side placement.
 - Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.
