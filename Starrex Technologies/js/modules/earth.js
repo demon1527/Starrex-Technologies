@@ -177,7 +177,7 @@ import { createVisibilityController } from "./visibility.js";
     color: 0xffffff,
     alphaMap: cloudTexture,
     transparent: true,
-    opacity: 0.3,
+    opacity: 0.11,
     depthWrite: false,
     roughness: 1,
   });
@@ -191,7 +191,7 @@ import { createVisibilityController } from "./visibility.js";
   const atmosphereMaterial = new THREE.ShaderMaterial({
     uniforms: {
       glowColor: { value: new THREE.Color(0x55b9e8) },
-      glowStrength: { value: 0.48 },
+      glowStrength: { value: 0.24 },
     },
     vertexShader: `
       varying vec3 vNormal;
