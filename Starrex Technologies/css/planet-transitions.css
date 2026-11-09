@@ -78,15 +78,15 @@ body.planet-transition-out-backward > footer {
 
 body.planet-transition-out-forward .planet-transition-overlay,
 body.planet-transition-out-backward .planet-transition-overlay {
-  animation: planet-transition-cover 680ms cubic-bezier(.72, 0, .25, 1) forwards;
+  animation: planet-transition-cover 760ms cubic-bezier(.72, 0, .25, 1) forwards;
 }
 
 body.planet-transition-out-forward .planet-transition-overlay::before {
-  animation: planet-streak-forward 680ms cubic-bezier(.7, 0, .2, 1) forwards;
+  animation: planet-streak-forward 760ms cubic-bezier(.7, 0, .2, 1) forwards;
 }
 
 body.planet-transition-out-backward .planet-transition-overlay::before {
-  animation: planet-streak-backward 680ms cubic-bezier(.7, 0, .2, 1) forwards;
+  animation: planet-streak-backward 760ms cubic-bezier(.7, 0, .2, 1) forwards;
 }
 
 body.planet-transition-in-forward #planet {
