@@ -2,7 +2,7 @@
 
 Starrex Technologies is an independent software studio focused on practical digital solutions: web development, Python automation, custom software and digital product experiences. This repository contains the studio website, built with semantic HTML, modular CSS and vanilla JavaScript ES modules.
 
-The visual identity includes the established procedural Saturn scene on Home and Contact, a dedicated Products page with a procedural lunar scene and graphite-and-silver theme, and a dedicated Projects page with an Earth scene and ocean-blue theme. Direction-aware transitions connect the planetary pages. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
+The visual identity includes the established procedural Saturn scene on Home and Contact, a dedicated Products page with a procedural lunar scene and graphite-and-silver theme, a dedicated Projects page with an Earth scene and ocean-blue theme, and a dedicated Services page with a Mars scene and a warm rust/charcoal theme. Direction-aware transitions connect the planetary pages. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
 
 ## Current website
 
@@ -13,22 +13,22 @@ The visual identity includes the established procedural Saturn scene on Home and
 | Home | `Starrex Technologies/index.html#home` | Studio introduction and overview |
 | Products | `Starrex Technologies/products.html` | Product directions and principles, presented with the Moon planetary visual |
 | Projects | `Starrex Technologies/projects.html` | Project capabilities and delivery approach, presented with the Earth planetary visual |
-| Services | `Starrex Technologies/index.html#services` | Ways the studio can help |
+| Services | `Starrex Technologies/services.html` | Service areas, working approach and enquiry path, presented with the Mars planetary visual |
 | About | `Starrex Technologies/index.html#about` | Studio introduction and values |
 | Contact | `Starrex Technologies/contact.html` | Contact details and project enquiry form |
 
-The Projects page is the Earth destination: a blue planet with a restrained atmospheric rim, cloud detail and no rings. Its content explains project capabilities and the delivery approach; it does not invent client case studies or claim unverified outcomes.
+The Services page is the Mars destination: a rust-red planet with darker terrain, dusty polar regions and a very subtle warm haze. Its content outlines service areas such as web development, custom software, automation, UI/UX and technical prototyping. Exact deliverables and terms are scoped for each enquiry; the page does not promise unverified timelines or outcomes.\n\nThe Projects page is the Earth destination: a blue planet with a restrained atmospheric rim, cloud detail and no rings. Its content explains project capabilities and the delivery approach; it does not invent client case studies or claim unverified outcomes.
 
 The Products page is the first Moon destination prototype: a grey, cratered lunar surface with hard lighting and no atmosphere. Its content presents four product directions—digital platforms, workflow tools, automation utilities and digital resources. These are areas of focus, not a live catalogue. No individual product names, release dates, prices or availability are claimed.
 
 ## Features
 
-- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. Projects has an Earth scene with a detailed hosted surface texture, local fallback map, thin atmospheric rim and restrained cloud layer. A static CSS planet fallback remains available when WebGL or external textures are unavailable.
+- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. Projects has an Earth scene with a detailed hosted surface texture, local fallback map, thin atmospheric rim and restrained cloud layer. Services has a Mars scene with a procedural iron-oxide surface, darker terrain regions, crater detail, dusty polar areas and a faint warm haze. A static CSS planet fallback remains available when WebGL or external textures are unavailable.
 - **Planetary page transitions:** normal multi-page navigation is preserved. A short outgoing/incoming handoff carries the direction across the document load: forward navigation travels left and backward navigation travels right. Reduced-motion preferences bypass the cinematic effect.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
 - **Dedicated Products page:** responsive lunar-themed product-direction overview with a distinct graphite, mineral-silver and restrained lavender palette, separate from the Saturn/Home atmosphere.
-- **Dedicated Projects page:** responsive project-capability overview with a distinct deep-ocean navy, atmospheric blue and restrained cyan palette. Capability categories are clearly distinguished from completed client case studies.
+- **Dedicated Projects page:** responsive project-capability overview with a distinct deep-ocean navy, atmospheric blue and restrained cyan palette. Capability categories are clearly distinguished from completed client case studies.\n- **Dedicated Services page:** responsive service overview with a distinct rust-red, warm charcoal and muted copper palette. Service areas are presented as enquiry-based capabilities, with scope and terms confirmed per project.
 - **Dedicated contact page:** enquiry form with client-side validation, a honeypot field and delivery through FormSubmit.
 - **Accessibility basics:** semantic landmarks, skip links, visible keyboard focus and live form feedback.
 - **Page metadata:** descriptive titles/descriptions, Open Graph basics and Twitter summary metadata.
@@ -67,7 +67,7 @@ There is no npm install or compilation/build step in the current website.
     │   ├── planet-transitions.css
     │   ├── themes/
     │   │   ├── moon.css
-    │   │   └── earth.css
+    │   │   ├── earth.css\n    │   │   └── mars.css
     │   └── pages/
     │       ├── home.css
     │       ├── products.css
@@ -127,9 +127,9 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Shared mobile navigation breakpoints | `css/responsive.css` |
 | Homepage layout and responsive styles | `css/pages/home.css` |
 | Products page layout and responsive styles | `css/pages/products.css` |
-| Projects page layout and responsive styles | `css/pages/projects.css` |
+| Projects page layout and responsive styles | `css/pages/projects.css` |\n| Services page layout and responsive styles | `css/pages/services.css` |
 | Lunar palette and Moon-specific shared-navigation overrides | `css/themes/moon.css` |
-| Earth/ocean palette and Earth-specific shared-navigation overrides | `css/themes/earth.css` |
+| Earth/ocean palette and Earth-specific shared-navigation overrides | `css/themes/earth.css` |\n| Mars/rust palette and Mars-specific shared-navigation overrides | `css/themes/mars.css` |
 | Direction-aware multi-page planetary transition choreography | `css/planet-transitions.css` and `js/modules/planet-transitions.js` |
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
@@ -147,7 +147,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 
 ## SEO and deployment notes
 
-- All four HTML pages include unique titles, descriptions, Open Graph title/description/site metadata and Twitter summary metadata.
+- All five HTML pages include unique titles, descriptions, Open Graph title/description/site metadata and Twitter summary metadata.
 - The favicon and logo paths are present in the repository.
 - A basic `robots.txt` is included in the website root folder.
 - A canonical URL and XML sitemap have intentionally **not** been hard-coded yet: the repository does not identify a confirmed public production domain. Add both after the final deployment URL is known; do not use a guessed GitHub Pages or hosting URL.
