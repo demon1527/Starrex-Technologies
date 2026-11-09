@@ -17,7 +17,9 @@ The visual identity includes the established procedural Saturn scene on Home and
 | About | `Starrex Technologies/index.html#about` | Studio introduction and values |
 | Contact | `Starrex Technologies/contact.html` | Contact details and project enquiry form |
 
-The Services page is the Mars destination: a rust-red planet with darker terrain, dusty polar regions and a very subtle warm haze. Its content outlines service areas such as web development, custom software, automation, UI/UX and technical prototyping. Exact deliverables and terms are scoped for each enquiry; the page does not promise unverified timelines or outcomes.\n\nThe Projects page is the Earth destination: a blue planet with a restrained atmospheric rim, cloud detail and no rings. Its content explains project capabilities and the delivery approach; it does not invent client case studies or claim unverified outcomes.
+The Services page is the Mars destination: a rust-red planet with darker terrain, dusty polar regions and a very subtle warm haze. Its content outlines service areas such as web development, custom software, automation, UI/UX and technical prototyping. Exact deliverables and terms are scoped for each enquiry; the page does not promise unverified timelines or outcomes.
+
+The Projects page is the Earth destination: a blue planet with a restrained atmospheric rim, cloud detail and no rings. Its content explains project capabilities and the delivery approach; it does not invent client case studies or claim unverified outcomes.
 
 The Products page is the first Moon destination prototype: a grey, cratered lunar surface with hard lighting and no atmosphere. Its content presents four product directions—digital platforms, workflow tools, automation utilities and digital resources. These are areas of focus, not a live catalogue. No individual product names, release dates, prices or availability are claimed.
 
@@ -28,7 +30,8 @@ The Products page is the first Moon destination prototype: a grey, cratered luna
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
 - **Dedicated Products page:** responsive lunar-themed product-direction overview with a distinct graphite, mineral-silver and restrained lavender palette, separate from the Saturn/Home atmosphere.
-- **Dedicated Projects page:** responsive project-capability overview with a distinct deep-ocean navy, atmospheric blue and restrained cyan palette. Capability categories are clearly distinguished from completed client case studies.\n- **Dedicated Services page:** responsive service overview with a distinct rust-red, warm charcoal and muted copper palette. Service areas are presented as enquiry-based capabilities, with scope and terms confirmed per project.
+- **Dedicated Projects page:** responsive project-capability overview with a distinct deep-ocean navy, atmospheric blue and restrained cyan palette. Capability categories are clearly distinguished from completed client case studies.
+- **Dedicated Services page:** responsive service overview with a distinct rust-red, warm charcoal and muted copper palette. Service areas are presented as enquiry-based capabilities, with scope and terms confirmed per project.
 - **Dedicated contact page:** enquiry form with client-side validation, a honeypot field and delivery through FormSubmit.
 - **Accessibility basics:** semantic landmarks, skip links, visible keyboard focus and live form feedback.
 - **Page metadata:** descriptive titles/descriptions, Open Graph basics and Twitter summary metadata.
@@ -67,7 +70,8 @@ There is no npm install or compilation/build step in the current website.
     │   ├── planet-transitions.css
     │   ├── themes/
     │   │   ├── moon.css
-    │   │   ├── earth.css\n    │   │   └── mars.css
+    │   │   ├── earth.css
+    │   │   └── mars.css
     │   └── pages/
     │       ├── home.css
     │       ├── products.css
@@ -127,16 +131,18 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Shared mobile navigation breakpoints | `css/responsive.css` |
 | Homepage layout and responsive styles | `css/pages/home.css` |
 | Products page layout and responsive styles | `css/pages/products.css` |
-| Projects page layout and responsive styles | `css/pages/projects.css` |\n| Services page layout and responsive styles | `css/pages/services.css` |
+| Projects page layout and responsive styles | `css/pages/projects.css` |
+| Services page layout and responsive styles | `css/pages/services.css` |
 | Lunar palette and Moon-specific shared-navigation overrides | `css/themes/moon.css` |
-| Earth/ocean palette and Earth-specific shared-navigation overrides | `css/themes/earth.css` |\n| Mars/rust palette and Mars-specific shared-navigation overrides | `css/themes/mars.css` |
+| Earth/ocean palette and Earth-specific shared-navigation overrides | `css/themes/earth.css` |
+| Mars/rust palette and Mars-specific shared-navigation overrides | `css/themes/mars.css` |
 | Direction-aware multi-page planetary transition choreography | `css/planet-transitions.css` and `js/modules/planet-transitions.js` |
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
 | Saturn background, scene construction and visual updates | `js/modules/saturn.js` |
 | Products Moon scene and procedural lunar surface | `js/modules/moon.js` |
 | Projects Earth scene, atmosphere and cloud layer | `js/modules/earth.js` |
-| Projects Earth scene, atmosphere and cloud layer | `js/modules/earth.js` |
+| Services Mars scene, procedural terrain and polar haze | `js/modules/mars.js` |
 | Shared single-frame scheduling helper | `js/modules/animation-loop.js` |
 | Shared renderer/camera viewport sizing | `js/modules/viewport.js` |
 | Shared document visibility lifecycle | `js/modules/visibility.js` |
