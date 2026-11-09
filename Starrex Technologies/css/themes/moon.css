@@ -36,6 +36,20 @@
   mask-image: linear-gradient(180deg, black, transparent 72%);
 }
 
+
+.products-body :focus-visible {
+  outline-color: var(--moon-lavender-bright);
+}
+.products-body .skip-link {
+  color: #17151d;
+  background: #c9c4d2;
+  border-color: #eeeaf4;
+}
+.products-body .mobile-navigation a[aria-current="page"] {
+  color: var(--moon-lavender-bright);
+  background: rgba(183, 169, 210, .09);
+}
+
 .products-body header {
   background: rgba(16, 19, 27, .88);
   border-color: rgba(194, 199, 211, .19);
