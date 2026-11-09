@@ -663,7 +663,8 @@
 
     const scrollLift = easedProgress * scrollTravel;
 
-    group.position.x += (base.x + mouse.x * 0.2 - group.position.x) * 0.05;
+    const targetX = base.x + (reduceMotion ? 0 : mouse.x * 0.2);
+    group.position.x += (targetX - group.position.x) * 0.05;
 
     const targetY = base.y + scrollLift - (reduceMotion ? 0 : mouse.y * 0.15);
 
