@@ -6,16 +6,17 @@ Introduce a reusable planetary background and cinematic page-transition system w
 
 This document defines the implementation boundary for Phase 5. It is a design contract, not a claim that the future planet modules or transitions are already implemented.
 
-## Current baseline (verified on `feature/phase-5-planetary-system`)
+## Current baseline (restored and user-confirmed working)
 
-- The site is a multi-page vanilla frontend: `index.html` and `contact.html`.
-- Three.js 0.160.0 is loaded from jsDelivr on both pages.
+- The site is a multi-page vanilla frontend: `Starrex Technologies/index.html` and `Starrex Technologies/contact.html`.
+- Three.js 0.160.0 is loaded from jsDelivr on both pages using the existing deferred classic script.
 - Both pages contain a fixed `canvas#planet` behind the page content.
-- `js/main.js` is the shared ES-module entry point.
-- `js/modules/planet-engine.js` owns the single renderer, scene, camera, animation loop, resize handling, visibility lifecycle, WebGL context recovery and reduced-motion preference.
-- `js/planets/saturn.js` owns Saturn's procedural textures, rings, stars, composition, scroll response and disposable visual resources.
+- `Starrex Technologies/js/main.js` is the shared ES-module entry point.
+- `Starrex Technologies/js/modules/saturn.js` is the known-working Saturn implementation. It currently owns its renderer, scene, camera, animation loop, responsive behaviour, scroll response, hidden-tab pause and WebGL safety handling.
+- The experimental `planet-engine.js` and `js/planets/saturn.js` extraction were removed after causing Saturn to disappear. They are not part of the current codebase.
 - Navigation is shared through `js/modules/navigation.js`; homepage navigation currently uses section anchors.
-- Saturn must remain visually unchanged on Home and Contact while the new architecture is introduced.
+- The user has pulled the rollback and confirmed Saturn is visible and working again on the current branch.
+- This working Saturn module is the regression baseline. Do not modify or replace it until a specific, independently verifiable migration step is ready.
 
 ## Planet and page mapping
 
@@ -99,12 +100,16 @@ Because the current site uses separate HTML pages, the transition handoff must a
 
 ## Incremental implementation sequence
 
-1. **5.1 — Engine contract and Saturn extraction (implemented; visual regression pending):** the shared engine API and Saturn planet module are in place. No new planet or navigation redesign was introduced. Desktop/mobile visual comparison and interaction checks remain the next verification gate.
-2. **5.2 — Regression verification:** verify Home and Contact, desktop/mobile sizes, scroll up/down, hidden-tab behaviour, reduced motion and WebGL fallback. Do not proceed until Saturn matches the current baseline.
-3. **5.3 — Transition controller:** add the direction-aware transition choreography with Saturn-to-Saturn test transitions first; verify page navigation and accessibility.
-4. **5.4 — Earth prototype:** add Earth as the first new planet and test Home ↔ Projects transitions before adding other planets.
-5. **5.5 — Moon and Mars:** add Products/Moon and Services/Mars only after the Earth path is stable.
-6. **5.6 — Polish:** tune timing, atmosphere accents, responsive composition, texture budgets and documentation.
+The first extraction attempt was rolled back. Phase 5.1 is therefore **not complete**. The next attempt must be smaller and evidence-led; do not repeat the previous bulk extraction.
+
+1. **5.1A — Baseline inventory (next):** document the existing Saturn module's renderer setup, scene objects, animation scheduling, resize handling, scroll calculations, visibility handling, context-loss behaviour and cleanup. This is read-only analysis; no visual code changes.
+2. **5.1B — Migration seam design:** identify the smallest safe boundary between renderer lifecycle and Saturn-specific scene construction. Keep the working Saturn module as the active implementation while the seam is reviewed. Do not add empty placeholder modules.
+3. **5.1C — Controlled migration:** move one responsibility at a time behind a tested interface. Preserve the existing Three.js loading order unless browser evidence proves it is the cause of a specific issue. After each change, verify Home and Contact before proceeding.
+4. **5.2 — Regression verification:** verify Home and Contact, desktop/mobile sizes, scroll up/down, hidden-tab behaviour, reduced motion and WebGL fallback. Do not proceed until Saturn matches the current baseline.
+5. **5.3 — Transition controller:** add direction-aware transition choreography with Saturn-to-Saturn test transitions first; verify page navigation and accessibility.
+6. **5.4 — Earth prototype:** add Earth as the first new planet and test Home ↔ Projects transitions before adding other planets.
+7. **5.5 — Moon and Mars:** add Products/Moon and Services/Mars only after the Earth path is stable.
+8. **5.6 — Polish:** tune timing, atmosphere accents, responsive composition, texture budgets and documentation.
 
 ## Out of scope for the first implementation
 
@@ -118,7 +123,7 @@ Because the current site uses separate HTML pages, the transition handoff must a
 
 - Home and Contact still render Saturn with the same recognizable procedural surface, rings, subdued brightness, scale and right-side placement.
 - Saturn still moves upward with page scroll and returns when scrolling upward.
-- The engine owns the only renderer and animation loop.
+- After migration is complete, the shared engine owns the only renderer and animation loop; until then, the existing Saturn module remains the sole owner.
 - No duplicate canvas, renderer or event-listener initialization.
 - Missing WebGL/Three.js does not break the page content or navigation.
 - No other page, navigation, audio or contact-form behaviour is changed.
