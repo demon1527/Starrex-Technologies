@@ -6,6 +6,9 @@
     <title>Contact Starrex Technologies | Start a Conversation</title>
     <meta name="description" content="Get in touch with Starrex Technologies about web development, custom software, Python automation and digital product enquiries." />
     <meta name="theme-color" content="#080311" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
     <link rel="icon" href="assets/Icons/starrex-icon.png" type="image/png" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/navigation.css" />
@@ -14,8 +17,9 @@
     <link rel="stylesheet" href="css/pages/contact.css" />
   </head>
   <body class="contact-body">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <canvas id="planet" aria-hidden="true"></canvas>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
     <header>
       <nav aria-label="Main navigation">
@@ -44,7 +48,7 @@
       </nav>
     </header>
 
-    <main class="contact-page">
+    <main id="main-content" class="contact-page">
       <section class="contact-intro" aria-labelledby="contact-title">
         <p class="contact-eyebrow">LET'S BUILD SOMETHING MEANINGFUL</p>
         <h1 id="contact-title">Have an idea?<br /><span>Let's talk.</span></h1>
