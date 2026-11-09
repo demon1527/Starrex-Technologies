@@ -1,0 +1,56 @@
+/* =========================
+   STARREX TECHNOLOGIES
+   Main Stylesheet
+========================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+
+
+:root {
+    --black: #0B0B1F;
+    --navy: #0B0B1F;
+    --midnight: #1E1B2E;
+    --steel: #6D28D9;
+    --white: #F8FAFC;
+    --grey: #B8C2CC;
+    --violet: #A855F7;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+
+body {
+    background: #080311;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+}
+
+
+#planet {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+
+
+main {
+    position: relative;
+    z-index: 1;
+}

@@ -13,7 +13,10 @@
 
     <link rel="icon" href="assets/Icons/starrex-icon.png" type="image/png" />
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/navigation.css" />
+    <link rel="stylesheet" href="css/sections.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
   </head>
 
   <body>
@@ -204,56 +207,5 @@
       </svg>
     </button>
 
-    <!-- Load the Three.js scene once, after the DOM is ready -->
-    <script type="module" src="script.js"></script>
-
-    <!-- Ambient sound system -->
-    <script src="sound.js"></script>
-  
-    <!-- Mobile navigation behaviour -->
-    <script>
-      (() => {
-        const toggle = document.querySelector(".mobile-menu-toggle");
-        const menu = document.querySelector("#mobile-navigation");
-
-        if (!toggle || !menu) return;
-
-        function closeMenu() {
-          menu.hidden = true;
-          toggle.setAttribute("aria-expanded", "false");
-          toggle.setAttribute("aria-label", "Open navigation menu");
-        }
-
-        function openMenu() {
-          menu.hidden = false;
-          toggle.setAttribute("aria-expanded", "true");
-          toggle.setAttribute("aria-label", "Close navigation menu");
-        }
-
-        toggle.addEventListener("click", () => {
-          const isOpen = toggle.getAttribute("aria-expanded") === "true";
-          if (isOpen) closeMenu();
-          else openMenu();
-        });
-
-        menu.querySelectorAll("a").forEach((link) => {
-          link.addEventListener("click", closeMenu);
-        });
-
-        document.addEventListener("click", (event) => {
-          if (!menu.contains(event.target) && !toggle.contains(event.target)) {
-            closeMenu();
-          }
-        });
-
-        document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape") closeMenu();
-        });
-
-        window.addEventListener("resize", () => {
-          if (window.innerWidth > 768) closeMenu();
-        });
-      })();
-    </script>
-  </body>
+    <!-- Load the Three.js scene once, after the DOM is ready --><!-- Ambient sound system --></body>
 </html>
