@@ -202,11 +202,8 @@
         const k = (y * w + x) * 4;
 
         img.data[k] = col[0] * (1 - polarMix) + 138 * polarMix;
-
         img.data[k + 1] = col[1] * (1 - polarMix) + 140 * polarMix;
-
         img.data[k + 2] = col[2] * (1 - polarMix) + 132 * polarMix;
-
         img.data[k + 3] = 255;
       }
     }
@@ -364,7 +361,8 @@
           vec3 rc = mix(vec3(grey), tex.rgb, 0.6);
 
           float ringOpacity = clamp(tex.a * 1.22 + 0.055, 0.0, 0.98);
-          gl_FragColor = vec4(rc * (1.0 - 0.78 * shadow), ringOpacity);
+          // Lower ring luminance so the background stays behind the content.
+          gl_FragColor = vec4(rc * (1.0 - 0.78 * shadow) * 0.62, ringOpacity);
         }
       `,
 
@@ -467,12 +465,13 @@
         float mu = max(dot(n, v), 0.0);
 
         vec3 col = tex * (0.075 + 1.32 * soft * (1.0 - 0.72 * shadow));
-
         col *= 0.6 + 0.4 * pow(mu, 0.6);
 
         float fres = pow(1.0 - mu, 3.0);
-
         col += vec3(0.85, 0.82, 0.75) * fres * 0.22 * soft;
+
+        // Apply the final brightness reduction to both the surface and rim light.
+        col *= 0.62;
 
         gl_FragColor = vec4(col, 1.0);
       }
@@ -509,7 +508,7 @@
             3.0
           );
 
-          gl_FragColor = vec4(0.85, 0.80, 0.70, 1.0) * i * 1.1;
+          gl_FragColor = vec4(0.85, 0.80, 0.70, 1.0) * i * 0.5;
         }
       `,
 
@@ -545,7 +544,7 @@
         color: 0xfff4e0,
         size,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.62,
         depthWrite: false,
       }),
     );
@@ -558,6 +557,7 @@
 
   /* ---------- SIZE AND POSITION ---------- */
   const base = new THREE.Vector2(4.6, -0.3);
+  let scrollTravel = 9.4;
 
   function resize() {
     if (renderer.getContext().isContextLost()) return;
@@ -579,10 +579,14 @@
 
     const portrait = camera.aspect < 1;
 
-    // Original Saturn positioning — deliberately unchanged.
+    // Preserve the established Saturn position and responsive scale.
     base.set(halfW * (portrait ? 0.4 : 0.76), portrait ? -1.6 : -0.3);
-
     group.scale.setScalar(portrait ? 0.55 : 1);
+
+    // Keep Saturn visible through most of the page and move it fully
+    // beyond the top edge only as the visitor approaches the page bottom.
+    // Portrait positioning starts lower, so it needs slightly more travel.
+    scrollTravel = portrait ? 6.4 : 6.0;
   }
 
   /* ---------- MOUSE PARALLAX ---------- */
@@ -629,12 +633,40 @@
       starsNear.rotation.z += 0.0001;
     }
 
-    const scrollLift = Math.min(window.scrollY * 0.003, 3);
+    // Normalize against the full document so the same behaviour works on
+    // pages of different lengths, including future pages using this canvas.
+    const pageHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0,
+    );
 
-    group.position.x += (base.x + mouse.x * 0.2 - group.position.x) * 0.05;
+    const maxScroll = Math.max(pageHeight - window.innerHeight, 1);
+    const currentScroll = Math.max(
+      window.scrollY,
+      document.documentElement.scrollTop,
+      document.body ? document.body.scrollTop : 0,
+    );
 
-    group.position.y +=
-      (base.y + scrollLift - mouse.y * 0.15 - group.position.y) * 0.05;
+    // Scroll-driven movement remains active even when reduced-motion is
+    // enabled; that preference only reduces decorative rotation/parallax.
+    const rawProgress = THREE.MathUtils.clamp(
+      currentScroll / maxScroll,
+      0,
+      1,
+    );
+
+    // Smoothstep keeps the upward movement gradual at both ends of the page.
+    const easedProgress =
+      rawProgress * rawProgress * (3 - 2 * rawProgress);
+
+    const scrollLift = easedProgress * scrollTravel;
+
+    const targetX = base.x + (reduceMotion ? 0 : mouse.x * 0.2);
+    group.position.x += (targetX - group.position.x) * 0.05;
+
+    const targetY = base.y + scrollLift - (reduceMotion ? 0 : mouse.y * 0.15);
+
+    group.position.y += (targetY - group.position.y) * 0.075;
 
     renderer.render(scene, camera);
 
