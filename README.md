@@ -60,6 +60,9 @@ There is no npm install or compilation/build step in the current website.
     │   ├── navigation.css
     │   ├── sections.css
     │   ├── responsive.css
+    │   ├── planet-transitions.css
+    │   ├── themes/
+    │   │   └── moon.css
     │   └── pages/
     │       ├── home.css
     │       ├── products.css
@@ -72,6 +75,7 @@ There is no npm install or compilation/build step in the current website.
     │   │   ├── animation-loop.js
     │   │   ├── viewport.js
     │   │   ├── visibility.js
+    │   │   ├── planet-transitions.js
     │   │   ├── navigation.js
     │   │   ├── audio.js
     │   │   └── footer.js
