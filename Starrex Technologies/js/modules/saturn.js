@@ -1,3 +1,5 @@
+import { createAnimationLoop } from "./animation-loop.js";
+
 /* =========================================================
    STARREX – Rotating Saturn background (Three.js)
    Procedural banded gas giant + realistic ring system.
@@ -607,22 +609,18 @@
   const reducedSpeed = 0.0001;
 
   /* ---------- ANIMATION CONTROL ---------- */
-  let animationFrameId = null;
   let isContextLost = false;
   let isDisposed = false;
 
   function shouldAnimate() {
-    return !isDisposed && !isContextLost && !document.hidden;
+    if (isDisposed || isContextLost || document.hidden) return false;
+
+    const context = renderer.getContext();
+    return Boolean(context && !context.isContextLost());
   }
 
   function animate() {
-    animationFrameId = null;
-
-    if (!shouldAnimate()) return;
-
-    if (!renderer.getContext() || renderer.getContext().isContextLost()) {
-      return;
-    }
+    if (!shouldAnimate()) return false;
 
     const speed = reduceMotion ? reducedSpeed : normalSpeed;
 
@@ -669,24 +667,20 @@
     group.position.y += (targetY - group.position.y) * 0.075;
 
     renderer.render(scene, camera);
-
-    animationFrameId = window.requestAnimationFrame(animate);
+    return true;
   }
 
+  const animationLoop = createAnimationLoop({
+    onFrame: animate,
+    shouldRun: shouldAnimate,
+  });
+
   function startAnimation() {
-    if (!shouldAnimate()) return;
-
-    // Prevent multiple animation loops.
-    if (animationFrameId !== null) return;
-
-    animationFrameId = window.requestAnimationFrame(animate);
+    animationLoop.start();
   }
 
   function stopAnimation() {
-    if (animationFrameId !== null) {
-      window.cancelAnimationFrame(animationFrameId);
-      animationFrameId = null;
-    }
+    animationLoop.stop();
   }
 
   /* ---------- BROWSER EVENT HANDLERS ---------- */
@@ -750,7 +744,7 @@
     startAnimation();
   } catch (error) {
     isDisposed = true;
-    stopAnimation();
+    animationLoop.dispose();
 
     console.error("Starrex Saturn: Initialization failed.", error);
   }
