@@ -54,8 +54,8 @@ import { createVisibilityController } from "./visibility.js";
   };
 
   function createLunarTexture() {
-    const width = 1536;
-    const height = 768;
+    const width = window.innerWidth < 768 ? 1024 : 1536;
+    const height = width / 2;
     const textureCanvas = document.createElement("canvas");
     textureCanvas.width = width;
     textureCanvas.height = height;
@@ -88,7 +88,8 @@ import { createVisibilityController } from "./visibility.js";
     context.putImageData(image, 0, 0);
 
     // Overlapping impact basins and smaller craters create a varied lunar surface.
-    for (let i = 0; i < 1750; i += 1) {
+    const craterCount = Math.round((width * height) / 675);
+    for (let i = 0; i < craterCount; i += 1) {
       const x = random() * width;
       const y = random() * height;
       const radius = 1.8 + Math.pow(random(), 2.1) * 27;
@@ -153,6 +154,7 @@ import { createVisibilityController } from "./visibility.js";
   );
   moon.rotation.set(0.12, -0.34, 0.08);
   moonGroup.add(moon);
+  document.body.classList.add("moon-scene-ready");
 
   const keyLight = new THREE.DirectionalLight(0xfff7e8, 3.1);
   keyLight.position.set(-5.5, 3.2, 5.5);
@@ -257,12 +259,14 @@ import { createVisibilityController } from "./visibility.js";
   function handleContextLost(event) {
     event.preventDefault();
     isContextLost = true;
+    document.body.classList.remove("moon-scene-ready");
     animationLoop.stop();
     console.warn("Starrex Moon: WebGL context was lost.");
   }
 
   function handleContextRestored() {
     isContextLost = false;
+    document.body.classList.add("moon-scene-ready");
     viewportController?.resize();
     animationLoop.start();
   }
@@ -304,6 +308,7 @@ import { createVisibilityController } from "./visibility.js";
       renderer.dispose();
     }, { once: true });
   } catch (error) {
+    document.body.classList.remove("moon-scene-ready");
     isDisposed = true;
     animationLoop.dispose();
     viewportController?.dispose();
