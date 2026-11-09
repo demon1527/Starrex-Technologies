@@ -115,3 +115,61 @@ After a migration step, manually verify:
 - Navigation, sound control, footer and contact form remain unaffected.
 
 The user should test the browser result after each meaningful migration commit. Source inspection alone is not proof of visual correctness.
+
+## 10. Proposed first migration contract (design only)
+
+The first engine migration should move **renderer ownership and scheduling**, not redesign Saturn's artwork.
+
+### Engine owns
+
+- The existing canvas reference.
+- The one `WebGLRenderer`, scene and perspective camera.
+- The only animation-frame scheduler.
+- Resize, visibility, WebGL context-loss/restoration and reduced-motion listeners.
+- Pointer and scroll measurements, exposed to the active planet as read-only frame context.
+- Mounting and unmounting the active planet object.
+- Final teardown of its listeners, animation frame and renderer.
+
+### Saturn module owns
+
+- Saturn's procedural surface and ring texture generation.
+- Saturn's planet, ring, atmosphere and star geometry/materials.
+- Saturn-specific visual constants and composition.
+- Saturn-specific per-frame rotation and transforms, driven by values supplied by the engine.
+- Disposal of every geometry, material and texture it creates.
+
+### Minimal planet factory shape
+
+The eventual Saturn factory should be a pure creator from the engine's perspective: it receives the Three.js namespace and returns a visual object plus lifecycle methods. It must not create a renderer, camera, animation loop or browser event listeners.
+
+Conceptual interface (not implemented yet):
+
+```js
+createSaturnPlanet(THREE) => ({
+  object3D,                 // root group added to the engine scene
+  update(frameContext),     // called by the engine's single animation loop
+  dispose(),                // releases Saturn-owned GPU resources
+});
+```
+
+The engine's `frameContext` should provide measured values such as elapsed time, viewport dimensions, normalized scroll progress, pointer position and reduced-motion state. Saturn should not independently read global scroll or pointer state once those responsibilities are moved.
+
+### Migration order
+
+1. Extract the renderer setup and scene/camera creation into the engine while keeping the existing visual construction unchanged.
+2. Make the engine call the Saturn factory and attach its returned root object to the scene.
+3. Move the existing resize, visibility, context and motion listeners into the engine without changing their behaviour.
+4. Move scroll and pointer measurements into engine frame context; preserve the existing easing, travel values and interpolation.
+5. Add explicit Saturn resource disposal and engine teardown.
+6. Remove the legacy Saturn IIFE only after Home and Contact pass the full regression gate.
+
+### Important guardrails
+
+- Keep the existing deferred global Three.js script and module entry arrangement unchanged during the first migration.
+- Do not import a second Three.js build from a CDN.
+- Do not run the legacy Saturn IIFE and new engine simultaneously; that would create competing renderers.
+- Do not add transition choreography or another planet during this migration.
+- Keep the current Saturn source recoverable through Git history and the known-good baseline commit.
+- If a migration step makes Saturn disappear, revert that step and inspect the actual browser Console before changing script loading or rendering strategy.
+
+This contract is a design target only. No engine or factory code is claimed to exist yet.
