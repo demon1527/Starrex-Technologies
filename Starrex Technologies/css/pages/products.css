@@ -31,6 +31,27 @@
   pointer-events: none;
 }
 
+/* Static lunar fallback remains visible if WebGL or Three.js is unavailable. */
+.products-body:not(.moon-scene-ready) .products-hero::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 48%;
+  right: 8%;
+  width: min(34vw, 390px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translateY(-45%);
+  background:
+    radial-gradient(circle at 31% 29%, rgba(42, 42, 43, .28) 0 2.4%, transparent 2.8%),
+    radial-gradient(circle at 66% 38%, rgba(39, 39, 40, .22) 0 4.2%, transparent 4.6%),
+    radial-gradient(circle at 49% 66%, rgba(36, 36, 38, .2) 0 5.4%, transparent 5.8%),
+    radial-gradient(circle at 25% 65%, rgba(42, 42, 43, .18) 0 3.2%, transparent 3.7%),
+    radial-gradient(circle at 37% 30%, #d8d6d0 0%, #aaa9a4 43%, #696a6c 74%, #27282d 100%);
+  box-shadow: inset -35px -22px 55px rgba(0, 0, 0, .68), inset 12px 8px 25px rgba(255, 255, 255, .18), 0 0 75px rgba(173, 165, 183, .1);
+  pointer-events: none;
+}
+
 .products-hero-copy {
   position: relative;
   z-index: 2;
@@ -553,6 +574,14 @@
 
   .products-hero::before {
     background: linear-gradient(180deg, rgba(8, 3, 17, .97) 0%, rgba(8, 3, 17, .84) 48%, rgba(8, 3, 17, .2) 100%);
+  }
+
+  .products-body:not(.moon-scene-ready) .products-hero::after {
+    top: auto;
+    right: 8%;
+    bottom: 14%;
+    width: 190px;
+    transform: none;
   }
 
   .products-hero-copy {
