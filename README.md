@@ -84,6 +84,7 @@ There is no npm install or compilation/build step in the current website.
     │   ├── main.js
     │   ├── modules/
     │   │   ├── saturn.js
+    │   │   ├── animation-loop.js
     │   │   ├── navigation.js
     │   │   ├── audio.js
     │   │   └── footer.js
@@ -130,7 +131,8 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Homepage layout and responsive styles | `css/pages/home.css` |
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
-| Saturn background, Three.js scene, renderer and animation lifecycle | `js/modules/saturn.js` |
+| Saturn background, scene construction and visual updates | `js/modules/saturn.js` |
+| Shared single-frame scheduling helper | `js/modules/animation-loop.js` |
 | Ambient sound | `js/modules/audio.js` |
 | Navigation and active-section behaviour | `js/modules/navigation.js` |
 | Shared footer utilities | `js/modules/footer.js` |
