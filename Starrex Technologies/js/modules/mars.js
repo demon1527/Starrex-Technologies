@@ -50,127 +50,182 @@ import { createVisibilityController } from "./visibility.js";
     return (seed - 1) / 2147483646;
   };
 
-  function createMarsSurfaceTexture() {
-    // Build a self-contained equirectangular albedo map. This is generated
-    // locally, so the planet never depends on a third-party image request.
-    const width = 1536;
-    const height = 768;
+  function createMarsSurfaceTextures() {
+    // Generate a high-contrast, locally stored equirectangular Mars albedo
+    // and a matching relief map. No remote image request is required.
+    const width = 2048;
+    const height = 1024;
     const textureCanvas = document.createElement("canvas");
     textureCanvas.width = width;
     textureCanvas.height = height;
-
     const context = textureCanvas.getContext("2d", { willReadFrequently: true });
-    if (!context) throw new Error("Could not create the Mars texture canvas.");
+    if (!context) throw new Error("Could not create the Mars albedo canvas.");
 
     const image = context.createImageData(width, height);
     const pixels = image.data;
 
     for (let y = 0; y < height; y += 1) {
       const v = y / height;
-      const latitude = Math.cos((v - 0.5) * Math.PI);
+      const latitude = Math.abs(v - 0.5) * 2;
       for (let x = 0; x < width; x += 1) {
         const u = x / width;
-        const broad =
-          Math.sin(u * 8.2 + Math.sin(v * 8.5) * 1.7) * 13 +
-          Math.sin(u * 17.5 - v * 11.2) * 8 +
-          Math.cos(u * 29 + Math.sin(v * 19) * 2) * 4.5 +
-          Math.sin(v * 31 + u * 5.5) * 3.5;
-        const fine = (random() - 0.5) * 23;
+        // Broad warped fields create continental-scale regions rather than
+        // evenly distributed noise or a uniform orange base.
+        const warpX = u + Math.sin(v * 13.0 + u * 5.0) * 0.018;
+        const warpY = v + Math.sin(u * 11.0 - v * 7.0) * 0.014;
+        const continental =
+          Math.sin(warpX * 18.0 + Math.sin(warpY * 13.0) * 2.8) * 0.58 +
+          Math.cos(warpY * 21.0 - warpX * 8.0) * 0.43 +
+          Math.sin(warpX * 39.0 + warpY * 17.0) * 0.22 +
+          Math.cos(warpX * 73.0 - warpY * 51.0) * 0.11;
+        const fine =
+          Math.sin(u * 311.0 + Math.sin(v * 97.0) * 2.0) * 3.8 +
+          Math.cos(v * 263.0 - u * 41.0) * 3.1 +
+          (random() - 0.5) * 9.0;
+        const highland = continental > 0.24;
+        const darkProvince = continental < -0.30;
+        const polarDust = latitude > 0.79 ? (latitude - 0.79) * 54 : 0;
 
-        // Dark basaltic provinces and lighter dusty highlands.
-        const province =
-          Math.sin(u * 5.8 + Math.sin(v * 6.1) * 1.4) +
-          Math.cos(v * 9.4 - u * 3.7) * 0.72 +
-          Math.sin(u * 13.3 + v * 7.2) * 0.34;
-        const darkTerrain = province < -0.48 ? -25 : province > 0.9 ? 13 : 0;
-        const polarDust = Math.max(0, (Math.abs(v - 0.5) - 0.39) / 0.11) * 16;
-        const value = 151 + broad + fine + darkTerrain + polarDust;
+        let red = 166 + continental * 46 + fine + polarDust;
+        let green = 77 + continental * 27 + fine * 0.58 + polarDust * 0.82;
+        let blue = 48 + continental * 19 + fine * 0.38 + polarDust * 0.62;
+        if (darkProvince) {
+          red -= 35;
+          green -= 25;
+          blue -= 17;
+        } else if (highland) {
+          red += 19;
+          green += 14;
+          blue += 10;
+        }
 
         const index = (y * width + x) * 4;
-        pixels[index] = Math.max(65, Math.min(218, value * 1.12));
-        pixels[index + 1] = Math.max(35, Math.min(174, value * 0.73));
-        pixels[index + 2] = Math.max(25, Math.min(137, value * 0.56));
+        pixels[index] = Math.max(48, Math.min(232, red));
+        pixels[index + 1] = Math.max(22, Math.min(190, green));
+        pixels[index + 2] = Math.max(14, Math.min(150, blue));
         pixels[index + 3] = 255;
       }
     }
     context.putImageData(image, 0, 0);
 
-    // Large impact basins and volcanic features establish recognizable
-    // planetary-scale surface variation before the fine crater field.
-    for (let i = 0; i < 95; i += 1) {
-      const x = random() * width;
-      const y = 35 + random() * (height - 70);
-      const radiusX = 9 + Math.pow(random(), 1.8) * 62;
-      const radiusY = radiusX * (0.48 + random() * 0.42);
-      const shade = random() > 0.46;
-      const basin = context.createRadialGradient(
-        x - radiusX * 0.18, y - radiusY * 0.2, radiusX * 0.08,
-        x, y, radiusX,
-      );
-      basin.addColorStop(0, shade ? "rgba(43,20,17,.48)" : "rgba(238,151,102,.25)");
-      basin.addColorStop(0.62, shade ? "rgba(73,31,24,.32)" : "rgba(203,105,69,.13)");
-      basin.addColorStop(0.86, "rgba(44,22,19,.12)");
-      basin.addColorStop(1, "rgba(0,0,0,0)");
-      context.save();
-      context.translate(x, y);
-      context.scale(1, radiusY / radiusX);
-      context.fillStyle = basin;
-      context.beginPath();
-      context.arc(0, 0, radiusX, 0, Math.PI * 2);
-      context.fill();
-      context.restore();
+    const reliefCanvas = document.createElement("canvas");
+    reliefCanvas.width = width;
+    reliefCanvas.height = height;
+    const reliefContext = reliefCanvas.getContext("2d");
+    if (!reliefContext) throw new Error("Could not create the Mars relief canvas.");
+    const reliefImage = reliefContext.createImageData(width, height);
+    for (let i = 0; i < reliefImage.data.length; i += 4) {
+      const variation = 118 + (pixels[i] - 145) * 1.05 + (random() - 0.5) * 18;
+      reliefImage.data[i] = variation;
+      reliefImage.data[i + 1] = variation;
+      reliefImage.data[i + 2] = variation;
+      reliefImage.data[i + 3] = 255;
     }
+    reliefContext.putImageData(reliefImage, 0, 0);
 
-    // Thousands of smaller craters add the granular relief visible at
-    // planetary scale, with a dark inner basin and a sun-facing rim.
-    for (let i = 0; i < 1850; i += 1) {
+    // Large visible impact craters: dark floors, bright raised rims and
+    // matching relief so the details survive when the sphere is scaled down.
+    for (let i = 0; i < 210; i += 1) {
       const x = random() * width;
-      const y = 14 + random() * (height - 28);
-      const radius = 1.2 + Math.pow(random(), 2.25) * 17;
-      const depth = 0.12 + random() * 0.24;
+      const y = 24 + random() * (height - 48);
+      const radius = 10 + Math.pow(random(), 1.45) * 46;
       const crater = context.createRadialGradient(
-        x - radius * 0.2, y - radius * 0.24, radius * 0.08,
+        x - radius * 0.2, y - radius * 0.22, radius * 0.12,
         x, y, radius,
       );
-      crater.addColorStop(0, `rgba(42,21,18,${depth})`);
-      crater.addColorStop(0.58, `rgba(73,34,27,${depth * 0.72})`);
-      crater.addColorStop(0.78, `rgba(239,167,125,${depth * 0.62})`);
-      crater.addColorStop(1, "rgba(35,18,15,0)");
-      context.fillStyle = crater;
+      crater.addColorStop(0, "rgba(48,20,17,.72)");
+      crater.addColorStop(0.54, "rgba(77,31,24,.62)");
+      crater.addColorStop(0.72, "rgba(241,166,119,.78)");
+      crater.addColorStop(0.86, "rgba(103,39,27,.48)");
+      crater.addColorStop(1, "rgba(0,0,0,0)");
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
+      context.fillStyle = crater;
       context.fill();
+
+      const relief = reliefContext.createRadialGradient(
+        x - radius * 0.2, y - radius * 0.22, radius * 0.12,
+        x, y, radius,
+      );
+      relief.addColorStop(0, "rgb(48,48,48)");
+      relief.addColorStop(0.58, "rgb(82,82,82)");
+      relief.addColorStop(0.76, "rgb(224,224,224)");
+      relief.addColorStop(1, "rgb(120,120,120)");
+      reliefContext.beginPath();
+      reliefContext.arc(x, y, radius, 0, Math.PI * 2);
+      reliefContext.fillStyle = relief;
+      reliefContext.fill();
     }
 
-    // Broken, dusty polar deposits rather than bright white caps.
+    // Smaller crater field, intentionally larger and higher contrast than
+    // the previous version so it remains legible on a desktop-sized planet.
+    for (let i = 0; i < 1450; i += 1) {
+      const x = random() * width;
+      const y = 10 + random() * (height - 20);
+      const radius = 2.2 + Math.pow(random(), 2.0) * 12;
+      const crater = context.createRadialGradient(
+        x - radius * 0.22, y - radius * 0.2, radius * 0.08,
+        x, y, radius,
+      );
+      crater.addColorStop(0, "rgba(45,19,16,.62)");
+      crater.addColorStop(0.58, "rgba(72,29,22,.46)");
+      crater.addColorStop(0.78, "rgba(246,177,130,.68)");
+      crater.addColorStop(1, "rgba(0,0,0,0)");
+      context.beginPath();
+      context.arc(x, y, radius, 0, Math.PI * 2);
+      context.fillStyle = crater;
+      context.fill();
+
+      const relief = reliefContext.createRadialGradient(
+        x - radius * 0.2, y - radius * 0.2, radius * 0.08,
+        x, y, radius,
+      );
+      relief.addColorStop(0, "rgb(58,58,58)");
+      relief.addColorStop(0.72, "rgb(205,205,205)");
+      relief.addColorStop(1, "rgb(118,118,118)");
+      reliefContext.beginPath();
+      reliefContext.arc(x, y, radius, 0, Math.PI * 2);
+      reliefContext.fillStyle = relief;
+      reliefContext.fill();
+    }
+
+    // Irregular dusty polar deposits, never bright white blobs.
     for (const north of [true, false]) {
-      for (let layer = 0; layer < 13; layer += 1) {
-        const edgeBase = 9 + layer * 3.4;
+      for (let layer = 0; layer < 18; layer += 1) {
+        const edge = 15 + layer * 3.7;
         context.beginPath();
         context.moveTo(0, north ? 0 : height);
-        for (let x = 0; x <= width; x += 18) {
-          const irregular = Math.sin(x * 0.014 + layer * 0.8) * 8 +
-            Math.sin(x * 0.037 - layer) * 4 + random() * 5;
-          const y = edgeBase + irregular;
+        for (let x = 0; x <= width; x += 16) {
+          const wobble = Math.sin(x * 0.009 + layer * 0.73) * 11 +
+            Math.sin(x * 0.027 - layer * 0.8) * 6 + random() * 5;
+          const y = edge + wobble;
           context.lineTo(x, north ? y : height - y);
         }
         context.lineTo(width, north ? 0 : height);
         context.closePath();
-        context.fillStyle = `rgba(225,190,164,${0.018 + (12 - layer) * 0.004})`;
+        context.fillStyle = `rgba(242,202,170,${0.025 + (17 - layer) * 0.004})`;
         context.fill();
       }
     }
 
-    const texture = new THREE.CanvasTexture(textureCanvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
-    texture.needsUpdate = true;
-    return texture;
-  }
+    const albedo = new THREE.CanvasTexture(textureCanvas);
+    albedo.colorSpace = THREE.SRGBColorSpace;
+    albedo.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+    albedo.needsUpdate = true;
 
+    const relief = new THREE.CanvasTexture(reliefCanvas);
+    relief.colorSpace = THREE.NoColorSpace;
+    relief.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+    relief.needsUpdate = true;
+
+    return { albedo, relief };
+  }
   let surfaceTexture;
+  let reliefTexture;
   try {
-    surfaceTexture = createMarsSurfaceTexture();
+    const textures = createMarsSurfaceTextures();
+    surfaceTexture = textures.albedo;
+    reliefTexture = textures.relief;
   } catch (error) {
     renderer.dispose();
     console.warn("Starrex Mars: Surface texture generation failed.", error);
@@ -179,8 +234,10 @@ import { createVisibilityController } from "./visibility.js";
 
   const marsMaterial = new THREE.MeshStandardMaterial({
     map: surfaceTexture,
+    bumpMap: reliefTexture,
+    bumpScale: 0.075,
     color: 0xffffff,
-    roughness: 0.98,
+    roughness: 1,
     metalness: 0,
   });
   const mars = new THREE.Mesh(
@@ -330,6 +387,7 @@ import { createVisibilityController } from "./visibility.js";
     mars.geometry.dispose();
     marsMaterial.dispose();
     surfaceTexture?.dispose();
+    reliefTexture?.dispose();
     haze.geometry.dispose();
     hazeMaterial.dispose();
     starGeometry.dispose();
