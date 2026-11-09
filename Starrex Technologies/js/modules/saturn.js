@@ -1,4 +1,5 @@
 import { createAnimationLoop } from "./animation-loop.js";
+import { createViewportController } from "./viewport.js";
 
 /* =========================================================
    STARREX – Rotating Saturn background (Three.js)
@@ -561,28 +562,14 @@ import { createAnimationLoop } from "./animation-loop.js";
   const base = new THREE.Vector2(4.6, -0.3);
   let scrollTravel = 9.4;
 
-  function resize() {
-    if (renderer.getContext().isContextLost()) return;
+  let viewportController = null;
 
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    if (!width || !height) return;
-
-    renderer.setSize(width, height, false);
-
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-
-    const halfW =
-      Math.tan(THREE.MathUtils.degToRad(20)) *
-      camera.position.z *
-      camera.aspect;
-
-    const portrait = camera.aspect < 1;
-
+  function updateSaturnComposition({ portrait, halfViewWidth }) {
     // Preserve the established Saturn position and responsive scale.
-    base.set(halfW * (portrait ? 0.4 : 0.76), portrait ? -1.6 : -0.3);
+    base.set(
+      halfViewWidth * (portrait ? 0.4 : 0.76),
+      portrait ? -1.6 : -0.3,
+    );
     group.scale.setScalar(portrait ? 0.55 : 1);
 
     // Keep Saturn visible through most of the page and move it fully
@@ -707,7 +694,7 @@ import { createAnimationLoop } from "./animation-loop.js";
 
     console.info("Starrex Saturn: WebGL context restored.");
 
-    resize();
+    viewportController?.resize();
     startAnimation();
   }
 
@@ -717,9 +704,13 @@ import { createAnimationLoop } from "./animation-loop.js";
 
   /* ---------- INITIALIZE ---------- */
   try {
-    resize();
+    viewportController = createViewportController({
+      renderer,
+      camera,
+      onResize: updateSaturnComposition,
+    });
+    viewportController.resize();
 
-    window.addEventListener("resize", resize);
     window.addEventListener("pointermove", handlePointerMove, {
       passive: true,
     });
@@ -744,6 +735,7 @@ import { createAnimationLoop } from "./animation-loop.js";
     startAnimation();
   } catch (error) {
     isDisposed = true;
+    viewportController?.dispose();
     animationLoop.dispose();
 
     console.error("Starrex Saturn: Initialization failed.", error);
