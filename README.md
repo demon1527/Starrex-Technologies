@@ -2,7 +2,7 @@
 
 Starrex Technologies is an independent software studio focused on practical digital solutions: web development, Python automation, custom software and digital product experiences. This repository contains the studio website, built with semantic HTML, modular CSS and vanilla JavaScript ES modules.
 
-The visual identity includes the established procedural Saturn scene on Home and Contact, a dedicated Products page with a procedural lunar scene, ambient sound controls and responsive navigation. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
+The visual identity includes the established procedural Saturn scene on Home and Contact, a dedicated Products page with a procedural lunar scene and its own graphite-and-silver theme, plus direction-aware transitions between planetary pages. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
 
 ## Current website
 
@@ -21,10 +21,11 @@ The Products page is the first Moon destination prototype: a grey, cratered luna
 
 ## Features
 
-- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. A static CSS lunar fallback appears when WebGL is unavailable. A unified multi-planet renderer/transition engine is still planned; the current page-local Moon renderer is an incremental prototype, not that engine.
+- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. A static CSS lunar fallback appears when WebGL is unavailable.
+- **Planetary page transitions:** normal multi-page navigation is preserved. A short outgoing/incoming handoff carries the direction across the document load: forward navigation travels left and backward navigation travels right. Reduced-motion preferences bypass the cinematic effect.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
-- **Dedicated Products page:** responsive lunar-themed product-direction overview with a clear distinction between future product areas and currently available products.
+- **Dedicated Products page:** responsive lunar-themed product-direction overview with a distinct graphite, mineral-silver and restrained lavender palette, separate from the Saturn/Home atmosphere.
 - **Dedicated contact page:** enquiry form with client-side validation, a honeypot field and delivery through FormSubmit.
 - **Accessibility basics:** semantic landmarks, skip links, visible keyboard focus and live form feedback.
 - **Page metadata:** descriptive titles/descriptions, Open Graph basics and Twitter summary metadata.
@@ -115,7 +116,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Shared styles still used by the About section | `css/sections.css` |
 | Shared mobile navigation breakpoints | `css/responsive.css` |
 | Homepage layout and responsive styles | `css/pages/home.css` |
-| Products page layout and responsive styles | `css/pages/products.css` |
+| Products page layout and responsive styles | `css/pages/products.css` |\n| Lunar palette and Moon-specific shared-navigation overrides | `css/themes/moon.css` |\n| Direction-aware multi-page planetary transition choreography | `css/planet-transitions.css` and `js/modules/planet-transitions.js` |
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
 | Saturn background, scene construction and visual updates | `js/modules/saturn.js` |
