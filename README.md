@@ -20,36 +20,45 @@ The official website of Starrex Technologies, an independent software studio bui
 
 ## About
 
-Starrex Technologies is a software studio focused on practical digital solutions: web development, Python automation, custom software and digital products. This repository contains the company's landing page, a static site with no build step and no framework.
+Starrex Technologies is a software studio focused on practical digital solutions: web development, Python automation, custom software and digital products. This repository contains the company's static website, built with HTML, CSS and vanilla JavaScript.
 
-The page opens on a slowly rotating, procedurally generated Saturn with ambient sound, set behind a glass-style navigation bar and a dark violet theme.
+The site features a procedural Saturn scene, ambient sound controls, responsive navigation, service information and a dedicated contact page.
 
 ## Features
 
-- **Procedural 3D Saturn background.** Built with Three.js. The banded planet surface and the ring system (C ring, B ring, Cassini Division, A ring and Encke gap) are generated in code at load time, so no texture files are downloaded.
-- **Realistic lighting.** The rings cast a shadow on the planet and the planet casts a shadow on the rings. The planet also has limb darkening and a soft atmospheric glow.
-- **Parallax and scroll motion.** The planet follows the mouse slightly and drifts upward as you scroll, over a field of slowly rotating stars.
-- **Ambient sound.** A "liminal space" soundscape (drone, pad, hum, room air and distant chimes) is synthesized live with the Web Audio API. It is off by default and starts with the speaker button. A soft whoosh plays on navigation clicks while sound is on.
-- **Accessibility and comfort.** The planet rotates slower when the user prefers reduced motion, the sound toggle has ARIA labels, and the audio pauses when the tab is hidden.
-- **Responsive layout.** The planet repositions and scales for portrait screens.
-- **Liquid-glass navbar.** A sticky, translucent navigation bar with a "Get in Touch" call to action.
+- **Procedural 3D Saturn background.** Built with Three.js; the planet and rings are generated in code.
+- **Parallax and scroll motion.** The planet responds subtly to pointer movement and page scrolling.
+- **Ambient sound.** A soundscape is synthesized with the Web Audio API and remains off until a visitor enables it.
+- **Responsive navigation.** Desktop links and an accessible mobile menu.
+- **Contact page.** A dedicated enquiry page with client-side validation and email delivery through FormSubmit.
+- **Accessibility and comfort.** Semantic page structure, labelled fields, live form feedback and reduced-motion-aware page styling.
 
-## Page sections
+## Pages and sections
 
-| Section | Anchor | Description |
+| Page / section | URL | Description |
 | --- | --- | --- |
-| Hero | `#home` | Headline, tagline and primary call-to-action buttons |
-| Services | `#services` | The three divisions: Digital Products, Web Development and Software Studio |
-| About | `#about` | Who we are, with the Innovation, Technology and Possibilities highlights |
+| Home | `index.html#home` | Hero, introduction and primary calls to action |
+| Services | `index.html#services` | Digital Products, Web Development and Software Studio |
+| About | `index.html#about` | Studio introduction and values |
+| Contact | `contact.html` | Contact details and project enquiry form |
 
-> **Status:** the navigation and buttons also link to `#products`, `#projects` and `#contact`. Those sections are not built yet, so the links currently have no target.
+The Products and Projects navigation destinations are retained for future pages; those sections are not implemented yet.
+
+## Contact form setup
+
+The contact form sends submissions to **ehtishamofficial28@gmail.com** through [FormSubmit](https://formsubmit.co/). It uses a hosted form endpoint, so this static website does not need a custom server or Firebase Functions.
+
+**One-time activation is required:** after the first real form submission, FormSubmit sends an activation email to the destination inbox. Open that email and confirm the form. Until the address is confirmed, submissions may be held by the service and normal delivery is not active. Check spam/junk if the activation email is not visible.
+
+The form uses the FormSubmit AJAX endpoint so the visitor receives success or error feedback on the contact page without being redirected away. Review FormSubmit's [documentation](https://formsubmit.co/documentation) for its current processing and privacy terms.
 
 ## Tech stack
 
-- HTML5, CSS3 and vanilla JavaScript
-- [Three.js](https://threejs.org/) `0.160.0`, loaded from the jsDelivr CDN
-- Web Audio API (no audio files)
-- [Inter](https://fonts.google.com/specimen/Inter) font, loaded from Google Fonts
+- HTML5, CSS3 and vanilla JavaScript (ES modules)
+- [Three.js](https://threejs.org/) `0.160.0`, loaded from jsDelivr
+- Web Audio API
+- [Inter](https://fonts.google.com/specimen/Inter), loaded from Google Fonts
+- [FormSubmit](https://formsubmit.co/) for static form delivery
 
 ## Project structure
 
@@ -57,59 +66,59 @@ The page opens on a slowly rotating, procedurally generated Saturn with ambient 
 .
 ├── README.md
 └── Starrex Technologies/
-    ├── index.html        # Page markup
-    ├── style.css         # Styles and theme variables
-    ├── script.js         # Three.js Saturn scene
-    ├── sound.js          # Ambient sound engine and toggle button
+    ├── index.html
+    ├── contact.html
+    ├── css/
+    │   ├── base.css
+    │   ├── navigation.css
+    │   ├── sections.css
+    │   ├── responsive.css
+    │   └── pages/
+    │       └── contact.css
+    ├── js/
+    │   ├── main.js
+    │   ├── modules/
+    │   │   ├── navigation.js
+    │   │   ├── saturn.js
+    │   │   └── audio.js
+    │   └── pages/
+    │       └── contact.js
     └── assets/
-        ├── images/       # Logos (starrex-logo.png, starrex-logo-stacked.png)
-        └── Icons/        # Favicon (starrex-icon.png)
+        ├── images/
+        └── Icons/
 ```
 
 ## Getting started
 
-Because the site is fully static, there is nothing to install.
+The website has no build step or package installation requirement.
 
-### Option 1: open the file
-
-Open `Starrex Technologies/index.html` in a modern browser.
-
-### Option 2: run a local server (recommended)
+Run a local server from the `Starrex Technologies` directory:
 
 ```bash
-git clone https://github.com/demon1527/Starrex-Technologies.git
-cd Starrex-Technologies/"Starrex Technologies"
-
-# pick one
 python -m http.server 8000
-# or
-npx serve .
 ```
 
-Then visit <http://localhost:8000>.
+Then open <http://localhost:8000>. A local server is recommended because ES modules and the contact service should not be tested by opening the HTML file directly from disk.
 
-> An internet connection is required on first load, because Three.js and the Inter font are fetched from CDNs.
+An internet connection is required for the Three.js library, Inter font and hosted form service.
 
 ## Customization
 
-| What | Where | Setting |
-| --- | --- | --- |
-| Ambient sound volume | `sound.js` | `MASTER_LEVEL` (0 to 1) |
-| Navigation whoosh volume | `sound.js` | `WHOOSH_LEVEL` (0 turns it off) |
-| Planet rotation speed | `script.js` | `speed` |
-| Ring tilt and roll | `script.js` | `ring.rotation.x` and `ring.rotation.z` |
-| Light direction | `script.js` | `SUN` |
-| Colour theme | `style.css` | CSS variables in `:root` |
-
-## Browser support
-
-Any modern browser with WebGL and Web Audio support, such as current versions of Chrome, Edge, Firefox and Safari. If WebGL is unavailable, the 3D background will not render.
+| What | Where |
+| --- | --- |
+| Theme variables and page foundation | `css/base.css` |
+| Shared navigation and sound control | `css/navigation.css` |
+| Home page sections | `css/sections.css` |
+| Responsive breakpoints | `css/responsive.css` |
+| Contact page design | `css/pages/contact.css` |
+| Contact form validation and delivery | `js/pages/contact.js` |
+| Saturn scene | `js/modules/saturn.js` |
+| Ambient sound | `js/modules/audio.js` |
+| Shared navigation behaviour | `js/modules/navigation.js` |
 
 ## Deployment
 
-The site can be hosted on any static host (GitHub Pages, Netlify, Vercel or Cloudflare Pages). Point the host at the `Starrex Technologies` folder as the site root.
-
-GitHub Pages only serves from the repository root or a `/docs` folder, so to use it either move the site files to the repository root or deploy that folder with a GitHub Actions workflow.
+This is a static website and can be deployed to GitHub Pages, Netlify, Vercel or another static host. Configure the `Starrex Technologies` folder as the site root. If using GitHub Pages, configure the deployment workflow to publish this nested directory.
 
 ## License
 

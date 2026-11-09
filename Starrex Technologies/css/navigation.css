@@ -1,0 +1,202 @@
+/* NAVIGATION */
+
+/* LIQUID GLASS NAVBAR */
+
+header {
+    width: min(1320px, calc(100% - 48px));
+    margin: 18px auto 0;
+    position: relative;
+    z-index: 2;
+
+    background: rgba(12, 8, 27, 0.88);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    backdrop-filter: blur(18px) saturate(135%);
+
+    border: 1px solid rgba(192, 132, 252, 0.18);
+    border-radius: 18px;
+
+    box-shadow:
+        0 10px 32px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+
+
+nav {
+    max-width: 1400px;
+    margin: auto;
+    padding: 12px 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: transparent;
+}
+
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+
+
+.logo img {
+    height: 44px;
+    width: auto;
+    display: block;
+}
+
+
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: clamp(18px, 2.2vw, 30px);
+}
+
+
+
+nav ul li a {
+    position: relative;
+    text-decoration: none;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+
+
+/* Animated underline */
+
+nav ul li a::after {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+
+    width: 0;
+    height: 2px;
+
+    background: #A855F7;
+    box-shadow: 0 0 10px #A855F7;
+
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+
+
+/* Hover effect */
+
+nav ul li a:hover {
+    color: #C084FC;
+}
+
+
+
+nav ul li a:hover::after {
+    width: 75%;
+}
+
+
+
+/* Active page */
+
+nav ul li a.active {
+    color: #C084FC;
+}
+
+
+
+nav ul li a.active::after {
+    width: 75%;
+}
+
+
+
+.nav-button {
+    background: linear-gradient(135deg, #6D28D9, #A855F7);
+    padding: 13px 22px;
+    border: 1px solid var(--steel);
+    border-radius: 30px;
+    color: var(--white);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+
+
+.nav-button:hover {
+    background: var(--midnight);
+    transform: translateY(-3px);
+}
+
+
+/* SOUND BUTTON */
+.sound-toggle {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 200;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(20, 14, 40, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--grey);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+
+
+.sound-toggle:hover {
+    color: var(--white);
+    transform: translateY(-3px);
+}
+
+
+
+.sound-toggle .waves { display: none; }
+
+
+.sound-toggle.is-on .waves { display: inline; }
+
+
+.sound-toggle.is-on .slash { display: none; }
+
+
+.sound-toggle.is-on {
+    color: var(--violet);
+    border-color: var(--violet);
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.45);
+}
+
+
+
+/* =========================================
+   STARREX MOBILE NAVIGATION
+========================================= */
+
+/* Desktop default */
+.mobile-menu-toggle,
+.mobile-navigation {
+    display: none;
+}
+
+
+
+.desktop-nav-links {
+    display: flex;
+}
