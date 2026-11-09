@@ -149,12 +149,16 @@ export function initPlanetEngine({ planetFactory } = {}) {
       return;
     }
 
+    scheduleAnimation();
+  }
+
+  function scheduleAnimation() {
+    if (!shouldAnimate() || animationFrameId !== null) return;
     animationFrameId = window.requestAnimationFrame(animate);
   }
 
   function startAnimation() {
-    if (!shouldAnimate() || animationFrameId !== null) return;
-    animationFrameId = window.requestAnimationFrame(animate);
+    scheduleAnimation();
   }
 
   function stopAnimation() {
