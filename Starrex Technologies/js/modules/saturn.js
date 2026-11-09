@@ -586,9 +586,10 @@
     base.set(halfW * (portrait ? 0.4 : 0.76), portrait ? -1.6 : -0.3);
     group.scale.setScalar(portrait ? 0.55 : 1);
 
-    // Move the complete ring system beyond the top edge by page bottom.
-    // Portrait Saturn is smaller, so it needs slightly less travel.
-    scrollTravel = portrait ? 8.5 : 9.4;
+    // Keep Saturn visible through most of the page and move it fully
+    // beyond the top edge only as the visitor approaches the page bottom.
+    // Portrait positioning starts lower, so it needs slightly more travel.
+    scrollTravel = portrait ? 6.4 : 6.0;
   }
 
   /* ---------- MOUSE PARALLAX ---------- */
