@@ -21,7 +21,7 @@ The Products page is the first Moon destination prototype: a grey, cratered luna
 
 ## Features
 
-- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. A unified multi-planet renderer/transition engine is still planned; the current page-local Moon renderer is an incremental prototype, not that engine.
+- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. A static CSS lunar fallback appears when WebGL is unavailable. A unified multi-planet renderer/transition engine is still planned; the current page-local Moon renderer is an incremental prototype, not that engine.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
 - **Dedicated Products page:** responsive lunar-themed product-direction overview with a clear distinction between future product areas and currently available products.
