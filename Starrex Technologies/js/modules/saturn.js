@@ -20,6 +20,8 @@ import { createVisibilityController } from "./visibility.js";
   "use strict";
 
   /* ---------- INITIAL SAFETY CHECKS ---------- */
+  if (document.body.dataset.planet === "moon") return;
+
   const canvas = document.getElementById("planet");
 
   if (!canvas) {
