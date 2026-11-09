@@ -1,28 +1,8 @@
-<div align="center">
-
-<img src="Starrex%20Technologies/assets/images/starrex-logo-stacked.png" alt="Starrex Technologies" width="320" />
-
-# Starrex Technologies
-
-**Innovate · Automate · Evolve**
-
-The official website of Starrex Technologies, an independent software studio focused on modern digital experiences, custom software and practical automation.
-
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
-![Three.js](https://img.shields.io/badge/Three.js-000000?logo=threedotjs&logoColor=white)
-![Web Audio API](https://img.shields.io/badge/Web%20Audio%20API-A855F7)
-
-</div>
-
----
-
 ## About
 
 Starrex Technologies is an independent software studio focused on practical digital solutions: web development, Python automation, custom software and digital product experiences. This repository contains the studio website, built with semantic HTML, modular CSS and vanilla JavaScript ES modules.
 
-The visual identity includes a procedural Saturn scene, ambient sound controls, responsive navigation and a dedicated contact page. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
+The visual identity includes a procedural Saturn scene, ambient sound controls, responsive navigation, a dedicated Products page and a dedicated contact page. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
 
 ## Current website
 
@@ -30,23 +10,21 @@ The visual identity includes a procedural Saturn scene, ambient sound controls, 
 
 | Page / section | URL | Description |
 | --- | --- | --- |
-| Home | `Starrex Technologies/index.html#home` | Hero and studio introduction |
-| Products | `Starrex Technologies/index.html#products` | Digital product direction and concepts |
+| Home | `Starrex Technologies/index.html#home` | Studio introduction and overview |
+| Products | `Starrex Technologies/products.html` | Product directions, principles and product enquiries |
 | Projects | `Starrex Technologies/index.html#projects` | Project capabilities: web experiences, custom software and automation |
 | Services | `Starrex Technologies/index.html#services` | Ways the studio can help |
-| Our approach | `Starrex Technologies/index.html` | Understand, plan, build and refine |
 | About | `Starrex Technologies/index.html#about` | Studio introduction and values |
 | Contact | `Starrex Technologies/contact.html` | Contact details and project enquiry form |
 
-The Products and Projects sections describe the studio's direction and capabilities; they are not presented as a live product catalogue or fabricated client case studies.
+The Products page currently presents four product directions: digital platforms, workflow tools, automation utilities and digital resources. These are areas of focus, not a live catalogue. No individual product names, release dates, prices or availability are claimed.
 
 ## Features
 
-- **Saturn background:** the proven Saturn implementation remains active. Its frame scheduler, renderer/camera viewport sizing and document visibility observation are now shared helpers; Saturn still owns its scene, renderer, camera and visual updates. The full multi-planet engine is planned, not yet implemented.
-- **Motion and lifecycle handling:** pointer/scroll response, responsive composition, reduced-motion awareness, hidden-tab pause, WebGL context recovery and a static fallback when WebGL is unavailable.
+- **Saturn background:** the proven Saturn implementation remains active. Its frame scheduler, renderer/camera viewport sizing and document visibility observation are shared helpers; Saturn still owns its scene, renderer, camera and visual updates. The full multi-planet engine is planned, not yet implemented.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
-- **Active section indication:** homepage navigation tracks the visible section.
+- **Dedicated Products page:** responsive product-direction overview with a clear distinction between future product areas and currently available products.
 - **Dedicated contact page:** enquiry form with client-side validation, a honeypot field and delivery through FormSubmit.
 - **Accessibility basics:** semantic landmarks, skip links, visible keyboard focus and live form feedback.
 - **Page metadata:** descriptive titles/descriptions, Open Graph basics and Twitter summary metadata.
@@ -68,8 +46,12 @@ There is no npm install or compilation/build step in the current website.
 ```text
 .
 ├── README.md
+├── docs/
+│   ├── PHASE-5-PLANETARY-SYSTEM.md
+│   └── PHASE-5-SATURN-INVENTORY.md
 └── Starrex Technologies/
     ├── index.html
+    ├── products.html
     ├── contact.html
     ├── robots.txt
     ├── css/
@@ -79,6 +61,7 @@ There is no npm install or compilation/build step in the current website.
     │   ├── responsive.css
     │   └── pages/
     │       ├── home.css
+    │       ├── products.css
     │       └── contact.css
     ├── js/
     │   ├── main.js
@@ -131,6 +114,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Shared styles still used by the About section | `css/sections.css` |
 | Shared mobile navigation breakpoints | `css/responsive.css` |
 | Homepage layout and responsive styles | `css/pages/home.css` |
+| Products page layout and responsive styles | `css/pages/products.css` |
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
 | Saturn background, scene construction and visual updates | `js/modules/saturn.js` |
@@ -144,7 +128,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 
 ## SEO and deployment notes
 
-- Both HTML pages include unique titles, descriptions, Open Graph title/description/site metadata and Twitter summary metadata.
+- All three HTML pages include unique titles, descriptions, Open Graph title/description/site metadata and Twitter summary metadata.
 - The favicon and logo paths are present in the repository.
 - A basic `robots.txt` is included in the website root folder.
 - A canonical URL and XML sitemap have intentionally **not** been hard-coded yet: the repository does not identify a confirmed public production domain. Add both after the final deployment URL is known; do not use a guessed GitHub Pages or hosting URL.
