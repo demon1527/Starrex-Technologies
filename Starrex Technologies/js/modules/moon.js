@@ -198,10 +198,10 @@ import { createVisibilityController } from "./visibility.js";
 
   function updateComposition({ portrait, halfViewWidth }) {
     base.set(
-      halfViewWidth * (portrait ? 0.4 : 0.76),
+      halfViewWidth * (portrait ? 0.52 : 0.76),
       portrait ? -1.55 : -0.35,
     );
-    moonGroup.scale.setScalar(portrait ? 0.68 : 1);
+    moonGroup.scale.setScalar(portrait ? 0.54 : 1);
     scrollTravel = portrait ? 5.6 : 5.2;
   }
 
