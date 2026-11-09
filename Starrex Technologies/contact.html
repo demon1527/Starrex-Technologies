@@ -21,9 +21,10 @@
     <link rel="stylesheet" href="css/navigation.css" />
     <link rel="stylesheet" href="css/sections.css" />
     <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/planet-transitions.css" />
     <link rel="stylesheet" href="css/pages/contact.css" />
   </head>
-  <body class="contact-body">
+  <body class="contact-body" data-planet="saturn">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <canvas id="planet" aria-hidden="true"></canvas>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -35,9 +36,9 @@
         </a>
         <ul class="desktop-nav-links">
           <li><a href="index.html#home">Home</a></li>
-          <li><a href="index.html#products">Products</a></li>
-          <li><a href="index.html#projects">Projects</a></li>
-          <li><a href="index.html#services">Services</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="services.html">Services</a></li>
           <li><a href="index.html#about">About</a></li>
         </ul>
         <a href="#contact-form" class="nav-button">Send an Enquiry →</a>
@@ -46,9 +47,9 @@
         </button>
         <div class="mobile-navigation" id="mobile-navigation" hidden>
           <a href="index.html#home">Home</a>
-          <a href="index.html#products">Products</a>
-          <a href="index.html#projects">Projects</a>
-          <a href="index.html#services">Services</a>
+          <a href="products.html">Products</a>
+          <a href="projects.html">Projects</a>
+          <a href="services.html">Services</a>
           <a href="index.html#about">About</a>
           <a href="#contact-form" class="mobile-nav-cta">Send an Enquiry →</a>
         </div>
@@ -77,7 +78,6 @@
           <h2 id="form-title">Send us a message.</h2>
           <p>Fill in the details below and we'll take it from there.</p>
         </div>
-
         <form id="contact-form-element" class="contact-form" novalidate>
           <input type="hidden" name="_subject" value="New enquiry — Starrex Technologies" />
           <input type="hidden" name="_template" value="table" />
@@ -85,19 +85,16 @@
             <label for="contact-website">Leave this field empty</label>
             <input id="contact-website" type="text" name="_honey" tabindex="-1" autocomplete="off" />
           </div>
-
           <div class="form-field">
             <label for="contact-name">Your name <span>*</span></label>
             <input id="contact-name" name="name" type="text" autocomplete="name" placeholder="Enter your name" required minlength="2" maxlength="100" />
             <small class="field-error" data-error-for="contact-name"></small>
           </div>
-
           <div class="form-field">
             <label for="contact-email">Email address <span>*</span></label>
             <input id="contact-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254" />
             <small class="field-error" data-error-for="contact-email"></small>
           </div>
-
           <div class="form-field">
             <label for="contact-subject">What is this about? <span>*</span></label>
             <select id="contact-subject" name="subject" required>
@@ -111,18 +108,13 @@
             </select>
             <small class="field-error" data-error-for="contact-subject"></small>
           </div>
-
           <div class="form-field">
             <label for="contact-message">Tell us about your project <span>*</span></label>
             <textarea id="contact-message" name="message" rows="6" placeholder="What are you looking to build or solve?" required minlength="15" maxlength="5000"></textarea>
             <small class="field-hint">A little context helps us understand your requirements.</small>
             <small class="field-error" data-error-for="contact-message"></small>
           </div>
-
-          <button class="contact-submit" type="submit">
-            <span class="submit-label">Send Message</span>
-            <span class="submit-arrow" aria-hidden="true">→</span>
-          </button>
+          <button class="contact-submit" type="submit"><span class="submit-label">Send Message</span><span class="submit-arrow" aria-hidden="true">→</span></button>
           <p class="form-status" id="contact-form-status" role="status" aria-live="polite"></p>
           <p class="form-privacy-note">Your message is processed by our form delivery provider and sent to our contact inbox.</p>
         </form>

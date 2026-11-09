@@ -1,3 +1,7 @@
+import { createAnimationLoop } from "./animation-loop.js";
+import { createViewportController } from "./viewport.js";
+import { createVisibilityController } from "./visibility.js";
+
 /* =========================================================
    STARREX – Rotating Saturn background (Three.js)
    Procedural banded gas giant + realistic ring system.
@@ -16,6 +20,8 @@
   "use strict";
 
   /* ---------- INITIAL SAFETY CHECKS ---------- */
+  if (document.body.dataset.planet === "moon") return;
+
   const canvas = document.getElementById("planet");
 
   if (!canvas) {
@@ -559,28 +565,15 @@
   const base = new THREE.Vector2(4.6, -0.3);
   let scrollTravel = 9.4;
 
-  function resize() {
-    if (renderer.getContext().isContextLost()) return;
+  let viewportController = null;
+  let visibilityController = null;
 
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    if (!width || !height) return;
-
-    renderer.setSize(width, height, false);
-
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-
-    const halfW =
-      Math.tan(THREE.MathUtils.degToRad(20)) *
-      camera.position.z *
-      camera.aspect;
-
-    const portrait = camera.aspect < 1;
-
+  function updateSaturnComposition({ portrait, halfViewWidth }) {
     // Preserve the established Saturn position and responsive scale.
-    base.set(halfW * (portrait ? 0.4 : 0.76), portrait ? -1.6 : -0.3);
+    base.set(
+      halfViewWidth * (portrait ? 0.4 : 0.76),
+      portrait ? -1.6 : -0.3,
+    );
     group.scale.setScalar(portrait ? 0.55 : 1);
 
     // Keep Saturn visible through most of the page and move it fully
@@ -607,22 +600,18 @@
   const reducedSpeed = 0.0001;
 
   /* ---------- ANIMATION CONTROL ---------- */
-  let animationFrameId = null;
   let isContextLost = false;
   let isDisposed = false;
 
   function shouldAnimate() {
-    return !isDisposed && !isContextLost && !document.hidden;
+    if (isDisposed || isContextLost || document.hidden) return false;
+
+    const context = renderer.getContext();
+    return Boolean(context && !context.isContextLost());
   }
 
   function animate() {
-    animationFrameId = null;
-
-    if (!shouldAnimate()) return;
-
-    if (!renderer.getContext() || renderer.getContext().isContextLost()) {
-      return;
-    }
+    if (!shouldAnimate()) return false;
 
     const speed = reduceMotion ? reducedSpeed : normalSpeed;
 
@@ -669,35 +658,23 @@
     group.position.y += (targetY - group.position.y) * 0.075;
 
     renderer.render(scene, camera);
-
-    animationFrameId = window.requestAnimationFrame(animate);
+    return true;
   }
 
+  const animationLoop = createAnimationLoop({
+    onFrame: animate,
+    shouldRun: shouldAnimate,
+  });
+
   function startAnimation() {
-    if (!shouldAnimate()) return;
-
-    // Prevent multiple animation loops.
-    if (animationFrameId !== null) return;
-
-    animationFrameId = window.requestAnimationFrame(animate);
+    animationLoop.start();
   }
 
   function stopAnimation() {
-    if (animationFrameId !== null) {
-      window.cancelAnimationFrame(animationFrameId);
-      animationFrameId = null;
-    }
+    animationLoop.stop();
   }
 
   /* ---------- BROWSER EVENT HANDLERS ---------- */
-  function handleVisibilityChange() {
-    if (document.hidden) {
-      stopAnimation();
-    } else {
-      startAnimation();
-    }
-  }
-
   function handleContextLost(event) {
     // Allow the browser to attempt restoring the WebGL context.
     event.preventDefault();
@@ -713,7 +690,7 @@
 
     console.info("Starrex Saturn: WebGL context restored.");
 
-    resize();
+    viewportController?.resize();
     startAnimation();
   }
 
@@ -723,14 +700,26 @@
 
   /* ---------- INITIALIZE ---------- */
   try {
-    resize();
+    viewportController = createViewportController({
+      renderer,
+      camera,
+      onResize: updateSaturnComposition,
+    });
+    viewportController.resize();
 
-    window.addEventListener("resize", resize);
+    visibilityController = createVisibilityController({
+      onVisibilityChange: (hidden) => {
+        if (hidden) {
+          stopAnimation();
+        } else {
+          startAnimation();
+        }
+      },
+    });
+
     window.addEventListener("pointermove", handlePointerMove, {
       passive: true,
     });
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     canvas.addEventListener("webglcontextlost", handleContextLost, false);
 
@@ -750,7 +739,9 @@
     startAnimation();
   } catch (error) {
     isDisposed = true;
-    stopAnimation();
+    visibilityController?.dispose();
+    viewportController?.dispose();
+    animationLoop.dispose();
 
     console.error("Starrex Saturn: Initialization failed.", error);
   }
