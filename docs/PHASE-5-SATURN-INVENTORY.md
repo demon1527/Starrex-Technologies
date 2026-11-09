@@ -116,9 +116,9 @@ After a migration step, manually verify:
 
 The user should test the browser result after each meaningful migration commit. Source inspection alone is not proof of visual correctness.
 
-## 10. Proposed first migration contract (design only)
+## 10. Proposed first migration contract
 
-The first engine migration should move **renderer ownership and scheduling**, not redesign Saturn's artwork.
+The first migration increment has extracted only the requestAnimationFrame scheduler. The Saturn module still owns the renderer, scene, camera and browser lifecycle. The remaining target boundary is documented below.
 
 ### Engine owns
 
@@ -173,3 +173,18 @@ The engine's `frameContext` should provide measured values such as elapsed time,
 - If a migration step makes Saturn disappear, revert that step and inspect the actual browser Console before changing script loading or rendering strategy.
 
 This contract is a design target only. No engine or factory code is claimed to exist yet.
+
+## 11. Migration progress — frame scheduler extracted
+
+The first controlled migration increment is now present on `feature/phase-5-planetary-system`:
+
+- Added `js/modules/animation-loop.js`, a small reusable scheduler with guarded `start`, `stop` and `dispose` methods.
+- `js/modules/saturn.js` imports the helper and delegates all requestAnimationFrame scheduling to it.
+- The Saturn frame callback still performs the same rotation, star motion, scroll easing, pointer interpolation and render operations.
+- The scheduler checks the caller's `shouldRun` predicate before and after each frame and avoids duplicate pending frame requests.
+- The Saturn initialization error path disposes the scheduler.
+- Direct requestAnimationFrame/cancelAnimationFrame references have been removed from `saturn.js`.
+
+**Not yet extracted:** renderer, scene, camera, resize handling, visibility handling, WebGL context lifecycle, reduced-motion listeners, pointer/scroll measurement, Saturn resources and explicit resource teardown.
+
+This increment must pass the user's Home and Contact browser checks before any further lifecycle responsibility is moved.
