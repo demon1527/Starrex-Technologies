@@ -67,13 +67,11 @@ Scroll movement is calculated inside the Saturn animation loop:
 
 ## 6. Animation and browser lifecycle
 
-- The module schedules frames with `requestAnimationFrame`.
-- A single frame ID is tracked to prevent duplicate animation loops.
+- `js/modules/animation-loop.js` owns the single requestAnimationFrame scheduler and exposes guarded start/stop/dispose methods.
 - The loop checks disposal state, context-loss state and document visibility before rendering.
-- The loop is stopped with `cancelAnimationFrame` when the document becomes hidden.
-- It restarts when the document becomes visible.
-- The `webglcontextlost` handler calls `preventDefault()`, records the lost state and stops animation.
-- The `webglcontextrestored` handler clears the lost state, resizes and restarts animation.
+- `js/modules/visibility.js` owns the `document.visibilitychange` listener and reports hidden/visible state through a callback; Saturn starts or stops the shared loop in response.
+- `js/modules/viewport.js` owns resize observation and renderer/camera viewport updates.
+- Saturn still owns WebGL context-loss/restoration listeners. The loss handler calls `preventDefault()`, records the lost state and stops animation; restoration clears the lost state, resizes and requests animation restart.
 - A `prefers-reduced-motion` media query controls rotation speed and pointer parallax.
 - Compatibility fallback uses `MediaQueryList.addListener` when `addEventListener` is unavailable.
 
@@ -174,16 +172,16 @@ The engine's `frameContext` should provide measured values such as elapsed time,
 
 This contract is a design target only. No engine or factory code is claimed to exist yet.
 
-## 11. Migration progress — scheduler and viewport extracted
+## 11. Migration progress — scheduler, viewport and visibility extracted
 
-The first two controlled migration increments are now present on `feature/phase-5-planetary-system`:
+Three controlled migration increments are now present on `feature/phase-5-planetary-system`:
 
-- Added `js/modules/animation-loop.js`, a reusable scheduler with guarded `start`, `stop` and `dispose` methods. Saturn delegates all requestAnimationFrame scheduling to it.
-- Added `js/modules/viewport.js` to own renderer sizing, camera aspect/projection updates and the window resize listener.
-- The viewport controller reports dimensions, aspect, portrait mode and half-view width; Saturn retains its established composition values and scroll-travel settings in a callback.
-- Context restoration asks the viewport controller to resize again. Initialization failure disposes the controller and animation scheduler.
-- Saturn's geometry, shaders, visual construction, scroll calculation, pointer handling, Three.js loading order and remaining browser lifecycle listeners are unchanged.
+- `js/modules/animation-loop.js` owns the guarded single-frame scheduler.
+- `js/modules/viewport.js` owns renderer sizing, camera aspect/projection updates and the window resize listener. It reports viewport dimensions, aspect, portrait mode and half-view width; Saturn retains its established composition and scroll-travel values.
+- `js/modules/visibility.js` owns the document visibility listener and reports hidden/visible state. Saturn uses the callback to stop or restart the shared animation loop.
+- Context restoration asks the viewport controller to resize and requests animation restart. Initialization failure disposes the visibility, viewport and animation controllers.
+- Saturn's geometry, shaders, visual construction, scroll calculation, pointer handling, Three.js loading order and WebGL/reduced-motion handling remain in the Saturn module.
 
-**Not yet extracted:** renderer/scene/camera ownership, visibility handling, WebGL context lifecycle, reduced-motion listeners, pointer/scroll measurement, Saturn resources and complete teardown.
+**Not yet extracted:** renderer/scene/camera ownership, WebGL context lifecycle, reduced-motion listener, pointer/scroll measurement, Saturn resources and complete teardown.
 
 The user must complete the Home and Contact browser regression checks for these increments before another responsibility is moved.
