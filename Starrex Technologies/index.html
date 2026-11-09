@@ -9,6 +9,7 @@
     <link rel="icon" href="assets/Icons/starrex-icon.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/navigation.css" />
     <link rel="stylesheet" href="css/sections.css" />
@@ -18,7 +19,7 @@
   <body class="home-body">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <canvas id="planet" aria-hidden="true"></canvas>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
     <header>
       <nav aria-label="Main navigation">
@@ -231,9 +232,5 @@
       </svg>
     </button>
     <script type="module" src="js/main.js"></script>
-    <script>
-      const year = document.getElementById("current-year");
-      if (year) year.textContent = String(new Date().getFullYear());
-    </script>
   </body>
 </html>
