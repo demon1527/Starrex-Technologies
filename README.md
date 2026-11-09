@@ -2,7 +2,7 @@
 
 Starrex Technologies is an independent software studio focused on practical digital solutions: web development, Python automation, custom software and digital product experiences. This repository contains the studio website, built with semantic HTML, modular CSS and vanilla JavaScript ES modules.
 
-The visual identity includes a procedural Saturn scene, ambient sound controls, responsive navigation, a dedicated Products page and a dedicated contact page. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
+The visual identity includes the established procedural Saturn scene on Home and Contact, a dedicated Products page with a procedural lunar scene, ambient sound controls and responsive navigation. The site intentionally keeps the existing lightweight, no-build-step frontend architecture.
 
 ## Current website
 
@@ -11,20 +11,20 @@ The visual identity includes a procedural Saturn scene, ambient sound controls, 
 | Page / section | URL | Description |
 | --- | --- | --- |
 | Home | `Starrex Technologies/index.html#home` | Studio introduction and overview |
-| Products | `Starrex Technologies/products.html` | Product directions, principles and product enquiries |
+| Products | `Starrex Technologies/products.html` | Product directions and principles, presented with the Moon planetary visual |
 | Projects | `Starrex Technologies/index.html#projects` | Project capabilities: web experiences, custom software and automation |
 | Services | `Starrex Technologies/index.html#services` | Ways the studio can help |
 | About | `Starrex Technologies/index.html#about` | Studio introduction and values |
 | Contact | `Starrex Technologies/contact.html` | Contact details and project enquiry form |
 
-The Products page currently presents four product directions: digital platforms, workflow tools, automation utilities and digital resources. These are areas of focus, not a live catalogue. No individual product names, release dates, prices or availability are claimed.
+The Products page is the first Moon destination prototype: a grey, cratered lunar surface with hard lighting and no atmosphere. Its content presents four product directions—digital platforms, workflow tools, automation utilities and digital resources. These are areas of focus, not a live catalogue. No individual product names, release dates, prices or availability are claimed.
 
 ## Features
 
-- **Saturn background:** the proven Saturn implementation remains active. Its frame scheduler, renderer/camera viewport sizing and document visibility observation are shared helpers; Saturn still owns its scene, renderer, camera and visual updates. The full multi-planet engine is planned, not yet implemented.
+- **Planetary backgrounds:** Home and Contact retain the proven Saturn implementation. Products has a separate Moon scene prototype using the shared animation-loop, viewport and visibility helpers. The Moon has a procedurally generated crater texture, restrained star field and no atmosphere or rings. A unified multi-planet renderer/transition engine is still planned; the current page-local Moon renderer is an incremental prototype, not that engine.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
-- **Dedicated Products page:** responsive product-direction overview with a clear distinction between future product areas and currently available products.
+- **Dedicated Products page:** responsive lunar-themed product-direction overview with a clear distinction between future product areas and currently available products.
 - **Dedicated contact page:** enquiry form with client-side validation, a honeypot field and delivery through FormSubmit.
 - **Accessibility basics:** semantic landmarks, skip links, visible keyboard focus and live form feedback.
 - **Page metadata:** descriptive titles/descriptions, Open Graph basics and Twitter summary metadata.
@@ -67,6 +67,7 @@ There is no npm install or compilation/build step in the current website.
     │   ├── main.js
     │   ├── modules/
     │   │   ├── saturn.js
+    │   │   ├── moon.js
     │   │   ├── animation-loop.js
     │   │   ├── viewport.js
     │   │   ├── visibility.js
@@ -118,6 +119,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Contact page layout and responsive styles | `css/pages/contact.css` |
 | Shared JavaScript entry point | `js/main.js` |
 | Saturn background, scene construction and visual updates | `js/modules/saturn.js` |
+| Products Moon scene and procedural lunar surface | `js/modules/moon.js` |
 | Shared single-frame scheduling helper | `js/modules/animation-loop.js` |
 | Shared renderer/camera viewport sizing | `js/modules/viewport.js` |
 | Shared document visibility lifecycle | `js/modules/visibility.js` |
