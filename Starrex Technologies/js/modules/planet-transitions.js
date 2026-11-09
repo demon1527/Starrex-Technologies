@@ -68,7 +68,11 @@ function beginArrival(body, overlay, direction) {
   overlay.addEventListener(
     "animationend",
     (event) => {
-      if (event.animationName !== "planet-transition-reveal") return;
+      if (
+        event.target !== overlay ||
+        event.pseudoElement ||
+        event.animationName !== "planet-transition-reveal"
+      ) return;
       body.classList.remove(`planet-transition-in-${direction}`);
       overlay.remove();
     },
@@ -106,7 +110,8 @@ export function initPlanetTransitions() {
   }
 
   document.addEventListener("click", (event) => {
-    const link = event.target.closest("a[href]");
+    const clickTarget = event.target instanceof Element ? event.target : event.target?.parentElement;
+    const link = clickTarget?.closest("a[href]");
     if (!link || !canIntercept(event, link) || motionPreference.matches) return;
 
     let destination;
@@ -166,7 +171,13 @@ export function initPlanetTransitions() {
     overlay.addEventListener(
       "animationend",
       (animationEvent) => {
-        if (animationEvent.animationName === "planet-transition-cover") navigate();
+        if (
+          animationEvent.target === overlay &&
+          !animationEvent.pseudoElement &&
+          animationEvent.animationName === "planet-transition-cover"
+        ) {
+          navigate();
+        }
       },
       { once: true },
     );
