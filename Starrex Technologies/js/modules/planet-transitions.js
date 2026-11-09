@@ -182,6 +182,6 @@ export function initPlanetTransitions() {
     overlay.addEventListener("animationend", handleCoverComplete);
 
     // Fallback for browsers that do not dispatch animationend.
-    window.setTimeout(navigate, 820);
+    window.setTimeout(navigate, 900);
   });
 }
