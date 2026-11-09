@@ -210,7 +210,11 @@
   const btn = document.getElementById("sound-toggle");
   if (!btn) return;
 
-  let ctx = null, engine = null, on = false, offTimer = null;
+  let ctx = null;
+  let engine = null;
+  let on = false;
+  let offTimer = null;
+  let chimeTimer = null;
 
   function setUI() {
     btn.classList.toggle("is-on", on);
@@ -218,45 +222,121 @@
     btn.setAttribute("aria-label", on ? "Turn ambient sound off" : "Turn ambient sound on");
   }
 
+  function stopChimeScheduler() {
+    if (chimeTimer !== null) {
+      window.clearTimeout(chimeTimer);
+      chimeTimer = null;
+    }
+  }
+
+  function scheduleChimesWhileActive() {
+    if (!on || !ctx || ctx.state !== "running" || !engine) {
+      chimeTimer = null;
+      return;
+    }
+
+    engine.scheduleChimes(ctx.currentTime + 30);
+    chimeTimer = window.setTimeout(scheduleChimesWhileActive, 5000);
+  }
+
   async function turnOn() {
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      ctx = new AC({ latencyHint: "playback" });   // bigger buffer = no crackles while the 3D planet animates
-      engine = buildEngine(ctx);
-      setInterval(() => engine.scheduleChimes(ctx.currentTime + 30), 5000);
+
+      if (!AC) {
+        btn.title = "Ambient sound is not supported by this browser.";
+        return;
+      }
+
+      try {
+        ctx = new AC({ latencyHint: "playback" });
+        engine = buildEngine(ctx);
+      } catch (error) {
+        console.error("Starrex ambient sound could not be initialized:", error);
+        if (ctx && ctx.state !== "closed") {
+          await ctx.close().catch(() => {});
+        }
+        ctx = null;
+        engine = null;
+        return;
+      }
     }
-    clearTimeout(offTimer);
+
+    window.clearTimeout(offTimer);
     await ctx.resume();
-    engine.scheduleChimes(ctx.currentTime + 30);
-    engine.fadeTo(MASTER_LEVEL, 4);          // slow fade-in
+
+    if (ctx.state !== "running") return;
+
     on = true;
     setUI();
+    engine.fadeTo(MASTER_LEVEL, 4);
+    stopChimeScheduler();
+    scheduleChimesWhileActive();
   }
 
   function turnOff() {
+    if (!ctx || !engine) return;
+
     on = false;
     setUI();
-    engine.fadeTo(0, 1.5);                   // soft fade-out, then pause the audio engine
-    offTimer = setTimeout(() => { if (!on) ctx.suspend(); }, 1700);
+    stopChimeScheduler();
+    engine.fadeTo(0, 1.5);
+
+    window.clearTimeout(offTimer);
+    offTimer = window.setTimeout(() => {
+      if (!on && ctx && ctx.state === "running") {
+        ctx.suspend().catch(error => {
+          console.warn("Starrex ambient sound could not be paused:", error);
+        });
+      }
+    }, 1700);
   }
 
-  btn.addEventListener("click", () => (on ? turnOff() : turnOn()));
-
-  // pause when the tab is hidden, resume when it comes back
-  document.addEventListener("visibilitychange", () => {
-    if (!ctx || !on) return;
-    if (document.hidden) ctx.suspend(); else ctx.resume();
+  btn.addEventListener("click", async () => {
+    try {
+      if (on) {
+        turnOff();
+      } else {
+        await turnOn();
+      }
+    } catch (error) {
+      on = false;
+      stopChimeScheduler();
+      setUI();
+      console.warn("Starrex ambient sound could not change state:", error);
+    }
   });
 
-  // soft whoosh when a navbar link is clicked (only if sound is on)
-  document.querySelectorAll("nav a").forEach((a) =>
-    a.addEventListener("click", () => { if (on && engine) engine.whoosh(); })
-  );
+  /* Suspend audio and its scheduler while the tab is not visible. */
+  document.addEventListener("visibilitychange", () => {
+    if (!ctx || !on) return;
 
-  // for the page-transition build later: window.starrexSound.whoosh()
+    if (document.hidden) {
+      stopChimeScheduler();
+      ctx.suspend().catch(error => {
+        console.warn("Starrex ambient sound could not be paused:", error);
+      });
+    } else {
+      ctx.resume()
+        .then(() => {
+          if (on) scheduleChimesWhileActive();
+        })
+        .catch(error => {
+          console.warn("Starrex ambient sound could not resume:", error);
+        });
+    }
+  });
+
+  document.querySelectorAll("nav a").forEach(link => {
+    link.addEventListener("click", () => {
+      if (on && engine) engine.whoosh();
+    });
+  });
+
   window.starrexSound = {
-    whoosh: () => { if (on && engine) engine.whoosh(); },
-    isOn: () => on
+    whoosh: () => {
+      if (on && engine) engine.whoosh();
+    },
+    isOn: () => on,
   };
 })();
