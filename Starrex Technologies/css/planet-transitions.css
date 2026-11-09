@@ -90,11 +90,11 @@ body.planet-transition-out-backward .planet-transition-overlay::before {
 }
 
 body.planet-transition-in-forward #planet {
-  animation: planet-arrive-from-right 1040ms cubic-bezier(.18, .72, .2, 1) both;
+  animation: planet-arrive-from-right 980ms cubic-bezier(.18, .72, .2, 1) both;
 }
 
 body.planet-transition-in-backward #planet {
-  animation: planet-arrive-from-left 1040ms cubic-bezier(.18, .72, .2, 1) both;
+  animation: planet-arrive-from-left 980ms cubic-bezier(.18, .72, .2, 1) both;
 }
 
 body.planet-transition-in-forward > header,
