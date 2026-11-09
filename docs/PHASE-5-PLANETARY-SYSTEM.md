@@ -8,7 +8,7 @@ This document defines the implementation boundary for Phase 5. It is a design co
 
 ## Current baseline (restored and user-confirmed working)
 
-- The site is a multi-page vanilla frontend: `Starrex Technologies/index.html` and `Starrex Technologies/contact.html`.
+- The site is a multi-page vanilla frontend: Home (`index.html`), Products (`products.html`) and Contact (`contact.html`). Projects and Services are still sections on Home; their dedicated planetary pages are future work.
 - Three.js 0.160.0 is loaded from jsDelivr on both pages using the existing deferred classic script.
 - Both pages contain a fixed `canvas#planet` behind the page content.
 - `Starrex Technologies/js/main.js` is the shared ES-module entry point.
@@ -16,6 +16,7 @@ This document defines the implementation boundary for Phase 5. It is a design co
 - The experimental `planet-engine.js` and `js/planets/saturn.js` extraction were removed after causing Saturn to disappear. They are not part of the current codebase.
 - Navigation is shared through `js/modules/navigation.js`; homepage navigation currently uses section anchors.
 - The user has pulled the rollback and confirmed Saturn is visible and working again on the current branch.
+- The Products page now has a page-specific Moon scene prototype in `js/modules/moon.js`. It uses the shared frame-loop, viewport and visibility helpers, but still creates its own page-local renderer; it is not yet integrated into a unified planet engine. The Products page has not yet been confirmed by the user.
 - This working Saturn module is the regression baseline. Do not modify or replace it until a specific, independently verifiable migration step is ready.
 
 ## Planet and page mapping
@@ -23,7 +24,7 @@ This document defines the implementation boundary for Phase 5. It is a design co
 | Navigation item | Destination | Planet |
 | --- | --- | --- |
 | Home | `index.html` / home page | Saturn |
-| Products | Products page (future) | Moon |
+| Products | `products.html` | Moon |
 | Projects | Projects page (future) | Earth |
 | Services | Services page (future) | Mars |
 | About | About section on Home | Saturn |
@@ -69,7 +70,7 @@ Each planet module should describe/create only that planet's visual resources an
 
 - Saturn: preserve the existing procedural banding, ring system, lighting balance, right-side placement and scroll-away behaviour on Home and About.
 - Earth: realistic blue planet with a restrained thin atmosphere; no rings.
-- Moon: realistic grey cratered surface; no atmosphere; slightly smaller visual scale.
+- Moon: realistic grey cratered surface; no atmosphere; slightly smaller visual scale. The current Products prototype creates its lunar surface procedurally and uses restrained lighting without rings or atmospheric glow.
 - Mars: realistic rust-red surface with darker terrain, polar caps and very subtle haze.
 
 Planet-specific textures and geometry must be disposed when no longer needed. Texture loading should be lazy so the initial Home page does not download every planet's assets.
@@ -105,11 +106,12 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 1. **5.1A — Baseline inventory (complete):** the current Saturn implementation has been inspected without changing production code. See [PHASE-5-SATURN-INVENTORY.md](PHASE-5-SATURN-INVENTORY.md) for renderer ownership, script loading, scene construction, scroll behaviour, lifecycle handling and migration constraints.
 2. **5.1B — Migration seam design (complete):** the proposed engine/planet boundary and factory lifecycle are documented in [PHASE-5-SATURN-INVENTORY.md](PHASE-5-SATURN-INVENTORY.md). The engine will own renderer, scene, camera, frame scheduling and browser lifecycle; Saturn will own only its visual resources and per-frame visual update. This is a design contract, not implemented code.
 3. **5.1C — Controlled migration (three responsibilities extracted):** requestAnimationFrame scheduling lives in `js/modules/animation-loop.js`, renderer/camera viewport sizing lives in `js/modules/viewport.js`, and document visibility observation lives in `js/modules/visibility.js`. Saturn delegates frame scheduling, resize observation and hidden/visible tab notifications to these helpers while retaining renderer/scene/camera creation, geometry, shaders, composition values, scroll calculations, pointer handling, WebGL context lifecycle and reduced-motion handling. The Three.js loading order and HTML entry points remain unchanged. This is still a partial extraction; browser regression testing is required before moving another lifecycle responsibility.
-4. **5.2 — Regression verification:** verify Home and Contact, desktop/mobile sizes, scroll up/down, hidden-tab behaviour, reduced motion and WebGL fallback. Do not proceed until Saturn matches the current baseline.
-5. **5.3 — Transition controller:** add direction-aware transition choreography with Saturn-to-Saturn test transitions first; verify page navigation and accessibility.
-6. **5.4 — Earth prototype:** add Earth as the first new planet and test Home ↔ Projects transitions before adding other planets.
-7. **5.5 — Moon and Mars:** add Products/Moon and Services/Mars only after the Earth path is stable.
-8. **5.6 — Polish:** tune timing, atmosphere accents, responsive composition, texture budgets and documentation.
+4. **5.1D — Products/Moon visual prototype (implemented; verification pending):** create the Moon destination page and its page-specific visual module. The module uses the extracted animation-loop, viewport and visibility helpers, but remains a temporary page-local scene until the unified engine is ready.
+5. **5.2 — Regression verification:** verify Home and Contact still match the known Saturn baseline, then verify Products/Moon on desktop and mobile, scroll up/down, hidden-tab behaviour, reduced motion and WebGL fallback. Do not proceed until the three pages behave reliably.
+6. **5.3 — Shared engine and transition controller:** consolidate renderer/scene lifecycle behind the agreed engine boundary, then add direction-aware navigation handoff and test Saturn-to-Moon transitions with reduced-motion and keyboard-accessibility coverage.
+7. **5.4 — Earth prototype:** add Earth for the future Projects page and test the relevant navigation path before adding Mars.
+8. **5.5 — Mars prototype:** add Mars for the future Services page only after the engine and existing planet paths are stable.
+9. **5.6 — Polish:** tune timing, atmosphere accents, responsive composition, texture budgets and documentation.
 
 ## Out of scope for the first implementation
 
@@ -122,6 +124,7 @@ The first extraction attempt was rolled back. Phase 5.1 is therefore **not compl
 ## Acceptance criteria for 5.1
 
 - Home and Contact still render Saturn with the same recognizable procedural surface, rings, subdued brightness, scale and right-side placement.
+- Products renders the Moon as a grey cratered body with hard lunar lighting, no rings and no atmosphere.
 - Saturn still moves upward with page scroll and returns when scrolling upward.
 - After migration is complete, the shared engine owns the only renderer and animation loop; until then, the existing Saturn module remains the sole owner.
 - No duplicate canvas, renderer or event-listener initialization.
