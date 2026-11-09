@@ -157,10 +157,9 @@ import { createVisibilityController } from "./visibility.js";
 
   const marsMaterial = new THREE.MeshStandardMaterial({
     map: surfaceTexture,
-    roughness: 0.96,
+    color: 0xffffff,
+    roughness: 0.98,
     metalness: 0,
-    bumpMap: surfaceTexture,
-    bumpScale: 0.028,
   });
   const mars = new THREE.Mesh(
     new THREE.SphereGeometry(1.94, 128, 128),
@@ -168,6 +167,42 @@ import { createVisibilityController } from "./visibility.js";
   );
   mars.rotation.set(.13, -.68, -.1);
   marsGroup.add(mars);
+
+  let isDisposed = false;
+
+  // Detailed equirectangular surface map from Solar System Scope.
+  // The procedural map above remains in place as a reliable offline fallback.
+  // Source: https://www.solarsystemscope.com/textures/ (CC BY 4.0).
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.setCrossOrigin("anonymous");
+  textureLoader.load(
+    "https://www.solarsystemscope.com/textures/download/2k_mars.jpg",
+    (loadedTexture) => {
+      if (isDisposed) {
+        loadedTexture.dispose();
+        return;
+      }
+
+      loadedTexture.colorSpace = THREE.SRGBColorSpace;
+      loadedTexture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+
+      const previousTexture = marsMaterial.map;
+      marsMaterial.map = loadedTexture;
+      marsMaterial.needsUpdate = true;
+      surfaceTexture = loadedTexture;
+
+      if (previousTexture && previousTexture !== loadedTexture) {
+        previousTexture.dispose();
+      }
+    },
+    undefined,
+    (error) => {
+      console.warn(
+        "Starrex Mars: Detailed surface map unavailable; keeping the procedural fallback.",
+        error,
+      );
+    },
+  );
 
   // A faint, dusty haze: intentionally much subtler than Earth's blue atmosphere.
   const hazeMaterial = new THREE.ShaderMaterial({
@@ -208,14 +243,14 @@ import { createVisibilityController } from "./visibility.js";
 
   document.body.classList.add("mars-scene-ready");
 
-  const keyLight = new THREE.DirectionalLight(0xffd2b5, 1.85);
+  const keyLight = new THREE.DirectionalLight(0xffd2b5, 2.45);
   keyLight.position.set(-5.2, 3.4, 5.5);
   scene.add(keyLight);
 
   const fillLight = new THREE.DirectionalLight(0x9a5946, .12);
   fillLight.position.set(4, -2, 3);
   scene.add(fillLight);
-  scene.add(new THREE.AmbientLight(0x704b40, .12));
+  scene.add(new THREE.AmbientLight(0x704b40, .17));
 
   const starPositions = [];
   for (let i = 0; i < 560; i += 1) {
@@ -240,7 +275,6 @@ import { createVisibilityController } from "./visibility.js";
   const base = new THREE.Vector2(4.7, -.35);
   let scrollTravel = 5.8;
   let isContextLost = false;
-  let isDisposed = false;
   let reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function updateComposition({ portrait, halfViewWidth }) {
