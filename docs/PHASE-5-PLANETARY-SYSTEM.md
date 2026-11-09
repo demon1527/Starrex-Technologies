@@ -102,8 +102,8 @@ Because the current site uses separate HTML pages, the transition handoff must a
 
 The first extraction attempt was rolled back. Phase 5.1 is therefore **not complete**. The next attempt must be smaller and evidence-led; do not repeat the previous bulk extraction.
 
-1. **5.1A — Baseline inventory (next):** document the existing Saturn module's renderer setup, scene objects, animation scheduling, resize handling, scroll calculations, visibility handling, context-loss behaviour and cleanup. This is read-only analysis; no visual code changes.
-2. **5.1B — Migration seam design:** identify the smallest safe boundary between renderer lifecycle and Saturn-specific scene construction. Keep the working Saturn module as the active implementation while the seam is reviewed. Do not add empty placeholder modules.
+1. **5.1A — Baseline inventory (complete):** the current Saturn implementation has been inspected without changing production code. See [PHASE-5-SATURN-INVENTORY.md](PHASE-5-SATURN-INVENTORY.md) for renderer ownership, script loading, scene construction, scroll behaviour, lifecycle handling and migration constraints.
+2. **5.1B — Migration seam design (next):** use the inventory to identify the smallest safe boundary between renderer lifecycle and Saturn-specific scene construction. Keep the working Saturn module as the active implementation while the seam is reviewed. Do not add empty placeholder modules.
 3. **5.1C — Controlled migration:** move one responsibility at a time behind a tested interface. Preserve the existing Three.js loading order unless browser evidence proves it is the cause of a specific issue. After each change, verify Home and Contact before proceeding.
 4. **5.2 — Regression verification:** verify Home and Contact, desktop/mobile sizes, scroll up/down, hidden-tab behaviour, reduced motion and WebGL fallback. Do not proceed until Saturn matches the current baseline.
 5. **5.3 — Transition controller:** add direction-aware transition choreography with Saturn-to-Saturn test transitions first; verify page navigation and accessibility.
