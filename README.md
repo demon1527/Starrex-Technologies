@@ -57,13 +57,21 @@ The page opens on a slowly rotating, procedurally generated Saturn with ambient 
 .
 ├── README.md
 └── Starrex Technologies/
-    ├── index.html        # Page markup
-    ├── style.css         # Styles and theme variables
-    ├── script.js         # Three.js Saturn scene
-    ├── sound.js          # Ambient sound engine and toggle button
+    ├── index.html
+    ├── css/
+    │   ├── base.css          # Reset, theme variables and page foundations
+    │   ├── navigation.css    # Desktop/mobile navigation and sound control
+    │   ├── sections.css      # Hero, services and about sections
+    │   └── responsive.css    # Responsive breakpoints
+    ├── js/
+    │   ├── main.js           # Frontend entry point
+    │   └── modules/
+    │       ├── navigation.js # Accessible mobile navigation
+    │       ├── saturn.js     # Three.js Saturn scene
+    │       └── audio.js      # Ambient sound engine
     └── assets/
-        ├── images/       # Logos (starrex-logo.png, starrex-logo-stacked.png)
-        └── Icons/        # Favicon (starrex-icon.png)
+        ├── images/           # Brand logos
+        └── Icons/            # Favicon
 ```
 
 ## Getting started
