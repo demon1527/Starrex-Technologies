@@ -83,10 +83,12 @@ There is no npm install or compilation/build step in the current website.
     ├── js/
     │   ├── main.js
     │   ├── modules/
+    │   │   ├── planet-engine.js
     │   │   ├── navigation.js
-    │   │   ├── saturn.js
     │   │   ├── audio.js
     │   │   └── footer.js
+    │   ├── planets/
+    │   │   └── saturn.js
     │   └── pages/
     │       └── contact.js
     └── assets/

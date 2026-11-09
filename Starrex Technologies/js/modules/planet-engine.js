@@ -74,27 +74,38 @@ export function initPlanetEngine({ planetFactory } = {}) {
         ? [planet.object]
         : [];
     objects.forEach((object) => scene.remove(object));
-    planet.dispose?.();
+    try {
+      planet.dispose?.();
+    } catch (error) {
+      console.warn("Starrex planet engine: Planet resource cleanup failed.", error);
+    }
   }
 
   function setPlanet(factory) {
     if (isDisposed || typeof factory !== "function") return null;
-    let nextPlanet;
+    let nextPlanet = null;
+    const previousPlanet = activePlanet;
 
     try {
       nextPlanet = factory({ THREE, renderer, camera });
       if (!nextPlanet || !Array.isArray(nextPlanet.objects)) {
         throw new TypeError("A planet factory must return an objects array.");
       }
-
       nextPlanet.objects.forEach((object) => scene.add(object));
-      const previousPlanet = activePlanet;
       activePlanet = nextPlanet;
-      resize();
+
+      try {
+        resize();
+      } catch (error) {
+        activePlanet = previousPlanet;
+        nextPlanet.objects.forEach((object) => scene.remove(object));
+        throw error;
+      }
+
       removePlanet(previousPlanet);
       return activePlanet;
     } catch (error) {
-      if (nextPlanet) removePlanet(nextPlanet);
+      if (nextPlanet && nextPlanet !== activePlanet) removePlanet(nextPlanet);
       console.error("Starrex planet engine: Planet activation failed.", error);
       return null;
     }
@@ -205,6 +216,10 @@ export function initPlanetEngine({ planetFactory } = {}) {
   }
 
   try {
+    if (!setPlanet(planetFactory)) {
+      throw new Error("The initial planet could not be created.");
+    }
+
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -217,15 +232,10 @@ export function initPlanetEngine({ planetFactory } = {}) {
       motionQuery.addListener(handleMotionPreferenceChange);
     }
 
-    if (!setPlanet(planetFactory)) {
-      throw new Error("The initial planet could not be created.");
-    }
-
     canvas.hidden = false;
     delete canvas.dataset.planetEngine;
     const engineApi = { setPlanet, dispose, renderer, scene, camera };
     enginesByCanvas.set(canvas, engineApi);
-    resize();
     startAnimation();
     return engineApi;
   } catch (error) {
