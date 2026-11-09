@@ -363,7 +363,8 @@
           float grey = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
           vec3 rc = mix(vec3(grey), tex.rgb, 0.6);
 
-          gl_FragColor = vec4(rc * (1.0 - 0.85 * shadow), tex.a);
+          float ringOpacity = clamp(tex.a * 1.22 + 0.055, 0.0, 0.98);
+          gl_FragColor = vec4(rc * (1.0 - 0.78 * shadow), ringOpacity);
         }
       `,
 
@@ -465,7 +466,7 @@
 
         float mu = max(dot(n, v), 0.0);
 
-        vec3 col = tex * (0.025 + 1.25 * soft * (1.0 - 0.8 * shadow));
+        vec3 col = tex * (0.075 + 1.32 * soft * (1.0 - 0.72 * shadow));
 
         col *= 0.6 + 0.4 * pow(mu, 0.6);
 
