@@ -42,7 +42,7 @@ The Products and Projects sections describe the studio's direction and capabilit
 
 ## Features
 
-- **Saturn background:** the proven Saturn implementation remains a self-contained module and currently owns its Three.js scene, renderer and animation loop. The shared multi-planet engine is planned, not yet implemented.
+- **Saturn background:** the proven Saturn implementation remains active. Its frame scheduler and renderer/camera viewport sizing are now shared helpers; Saturn still owns its scene, renderer, camera and visual updates. The full multi-planet engine is planned, not yet implemented.
 - **Motion and lifecycle handling:** pointer/scroll response, responsive composition, reduced-motion awareness, hidden-tab pause, WebGL context recovery and a static fallback when WebGL is unavailable.
 - **Ambient sound:** generated with the Web Audio API and off by default; its scheduler stops when sound is disabled or the tab is hidden.
 - **Responsive navigation:** desktop links and an accessible mobile menu with keyboard focus handling.
@@ -85,6 +85,7 @@ There is no npm install or compilation/build step in the current website.
     │   ├── modules/
     │   │   ├── saturn.js
     │   │   ├── animation-loop.js
+    │   │   ├── viewport.js
     │   │   ├── navigation.js
     │   │   ├── audio.js
     │   │   └── footer.js
@@ -133,6 +134,7 @@ The form uses FormSubmit's AJAX endpoint so visitors receive success/error feedb
 | Shared JavaScript entry point | `js/main.js` |
 | Saturn background, scene construction and visual updates | `js/modules/saturn.js` |
 | Shared single-frame scheduling helper | `js/modules/animation-loop.js` |
+| Shared renderer/camera viewport sizing | `js/modules/viewport.js` |
 | Ambient sound | `js/modules/audio.js` |
 | Navigation and active-section behaviour | `js/modules/navigation.js` |
 | Shared footer utilities | `js/modules/footer.js` |
