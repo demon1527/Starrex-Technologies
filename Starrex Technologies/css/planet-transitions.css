@@ -1,0 +1,200 @@
+/* Direction-aware cinematic handoff between planetary pages. */
+.planet-transition-overlay {
+  position: fixed;
+  z-index: 900;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(29, 31, 42, .16) 0%, rgba(7, 8, 13, .78) 72%, #05060a 100%);
+}
+
+.planet-transition-overlay::before,
+.planet-transition-overlay::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+}
+
+.planet-transition-overlay::before {
+  opacity: .7;
+  background: linear-gradient(
+    90deg,
+    transparent 38%,
+    rgba(210, 204, 225, .035) 46%,
+    rgba(224, 218, 237, .2) 50%,
+    rgba(210, 204, 225, .035) 54%,
+    transparent 62%
+  );
+}
+
+.planet-transition-overlay::after {
+  opacity: .42;
+  background: radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, .42) 100%);
+}
+
+#planet {
+  transform: translate3d(0, 0, 0) scale(1);
+  transform-origin: 50% 50%;
+  transition: transform 760ms cubic-bezier(.7, 0, .22, 1), opacity 620ms ease;
+  will-change: transform, opacity;
+}
+
+body.planet-transition-out-forward #planet {
+  opacity: 0;
+  transform: translate3d(-112vw, 0, 0) scale(.72) rotate(-11deg);
+}
+
+body.planet-transition-out-backward #planet {
+  opacity: 0;
+  transform: translate3d(112vw, 0, 0) scale(.72) rotate(11deg);
+}
+
+body.planet-transition-out-forward > header,
+body.planet-transition-out-forward > main,
+body.planet-transition-out-forward > footer,
+body.planet-transition-out-forward > .sound-toggle,
+body.planet-transition-out-backward > header,
+body.planet-transition-out-backward > main,
+body.planet-transition-out-backward > footer,
+body.planet-transition-out-backward > .sound-toggle {
+  opacity: .12;
+  transition: opacity 460ms ease, transform 620ms cubic-bezier(.7, 0, .22, 1);
+}
+
+body.planet-transition-out-forward > header,
+body.planet-transition-out-forward > main,
+body.planet-transition-out-forward > footer {
+  transform: translate3d(-22px, 0, 0);
+}
+
+body.planet-transition-out-backward > header,
+body.planet-transition-out-backward > main,
+body.planet-transition-out-backward > footer {
+  transform: translate3d(22px, 0, 0);
+}
+
+body.planet-transition-out-forward .planet-transition-overlay,
+body.planet-transition-out-backward .planet-transition-overlay {
+  animation: planet-transition-cover 680ms cubic-bezier(.72, 0, .25, 1) forwards;
+}
+
+body.planet-transition-out-forward .planet-transition-overlay::before {
+  animation: planet-streak-forward 680ms cubic-bezier(.7, 0, .2, 1) forwards;
+}
+
+body.planet-transition-out-backward .planet-transition-overlay::before {
+  animation: planet-streak-backward 680ms cubic-bezier(.7, 0, .2, 1) forwards;
+}
+
+body.planet-transition-in-forward #planet {
+  animation: planet-arrive-from-right 1040ms cubic-bezier(.18, .72, .2, 1) both;
+}
+
+body.planet-transition-in-backward #planet {
+  animation: planet-arrive-from-left 1040ms cubic-bezier(.18, .72, .2, 1) both;
+}
+
+body.planet-transition-in-forward > header,
+body.planet-transition-in-forward > main,
+body.planet-transition-in-forward > footer,
+body.planet-transition-in-backward > header,
+body.planet-transition-in-backward > main,
+body.planet-transition-in-backward > footer {
+  animation: planet-page-arrive 820ms cubic-bezier(.2, .7, .2, 1) both;
+}
+
+body.planet-transition-in-forward .planet-transition-overlay,
+body.planet-transition-in-backward .planet-transition-overlay {
+  animation: planet-transition-reveal 980ms cubic-bezier(.55, 0, .25, 1) forwards;
+}
+
+body.planet-transition-in-forward .planet-transition-overlay::before {
+  animation: planet-streak-forward 980ms cubic-bezier(.55, 0, .25, 1) reverse both;
+}
+
+body.planet-transition-in-backward .planet-transition-overlay::before {
+  animation: planet-streak-backward 980ms cubic-bezier(.55, 0, .25, 1) reverse both;
+}
+
+@keyframes planet-transition-cover {
+  from { opacity: 0; }
+  to { opacity: .94; }
+}
+
+@keyframes planet-transition-reveal {
+  from { opacity: .94; }
+  to { opacity: 0; }
+}
+
+@keyframes planet-streak-forward {
+  from { transform: translate3d(110%, 0, 0); opacity: 0; }
+  48% { opacity: .9; }
+  to { transform: translate3d(-110%, 0, 0); opacity: 0; }
+}
+
+@keyframes planet-streak-backward {
+  from { transform: translate3d(-110%, 0, 0); opacity: 0; }
+  48% { opacity: .9; }
+  to { transform: translate3d(110%, 0, 0); opacity: 0; }
+}
+
+@keyframes planet-arrive-from-right {
+  from { opacity: 0; transform: translate3d(112vw, 0, 0) scale(.72) rotate(11deg); }
+  72% { opacity: 1; }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(0); }
+}
+
+@keyframes planet-arrive-from-left {
+  from { opacity: 0; transform: translate3d(-112vw, 0, 0) scale(.72) rotate(-11deg); }
+  72% { opacity: 1; }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(0); }
+}
+
+@keyframes planet-page-arrive {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@media (max-width: 640px) {
+  body.planet-transition-out-forward #planet,
+  body.planet-transition-out-backward #planet {
+    transform: translate3d(var(--planet-exit-x), 0, 0) scale(.78);
+  }
+
+  body.planet-transition-out-forward #planet { --planet-exit-x: -118vw; }
+  body.planet-transition-out-backward #planet { --planet-exit-x: 118vw; }
+
+  @keyframes planet-arrive-from-right {
+    from { opacity: 0; transform: translate3d(118vw, 0, 0) scale(.78); }
+    70% { opacity: 1; }
+    to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  }
+
+  @keyframes planet-arrive-from-left {
+    from { opacity: 0; transform: translate3d(-118vw, 0, 0) scale(.78); }
+    70% { opacity: 1; }
+    to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planet-transition-overlay,
+  body.planet-transition-out-forward #planet,
+  body.planet-transition-out-backward #planet,
+  body.planet-transition-in-forward #planet,
+  body.planet-transition-in-backward #planet,
+  body.planet-transition-in-forward > header,
+  body.planet-transition-in-forward > main,
+  body.planet-transition-in-forward > footer,
+  body.planet-transition-in-backward > header,
+  body.planet-transition-in-backward > main,
+  body.planet-transition-in-backward > footer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
