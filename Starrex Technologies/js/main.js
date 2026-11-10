@@ -1,4 +1,5 @@
 /* Shared frontend entry point. Page-specific behaviour stays in its own module. */
+import "./modules/scroll-restoration.js";
 import "./modules/saturn.js";
 import "./modules/moon.js";
 import "./modules/earth.js";
