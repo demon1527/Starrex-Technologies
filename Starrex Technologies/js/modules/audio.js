@@ -1,7 +1,8 @@
 /*
- * STARREX — Cinematic background soundtrack
- * Uses the locally hosted licensed music track. Playback is opt-in and
- * starts only after the visitor activates the sound control.
+ * STARREX — Persistent cinematic background soundtrack
+ * The site uses separate HTML documents. Playback therefore has to be
+ * handed off through sessionStorage when a visitor moves between pages.
+ * The next page resumes at the saved track position instead of restarting.
  */
 
 (() => {
@@ -10,6 +11,8 @@
   const MUSIC_LEVEL = 0.42;
   const FADE_IN_SECONDS = 3.8;
   const FADE_OUT_SECONDS = 1.6;
+  const PLAYBACK_STATE_KEY = "starrex:music-playback:v1";
+  const PLAYBACK_STATE_MAX_AGE = 30 * 60 * 1000;
 
   const button = document.getElementById("sound-toggle");
   if (!button) return;
@@ -21,13 +24,40 @@
     ).href
   );
 
+  let savedPlayback = null;
+
+  try {
+    const rawState = window.sessionStorage.getItem(PLAYBACK_STATE_KEY);
+    if (rawState) {
+      const state = JSON.parse(rawState);
+      const isRecent = Number.isFinite(state.savedAt) &&
+        Date.now() - state.savedAt >= 0 &&
+        Date.now() - state.savedAt <= PLAYBACK_STATE_MAX_AGE;
+      const hasValidTime = Number.isFinite(state.currentTime) &&
+        state.currentTime >= 0;
+
+      if (state.enabled === true && isRecent && hasValidTime) {
+        savedPlayback = { currentTime: state.currentTime };
+      } else {
+        window.sessionStorage.removeItem(PLAYBACK_STATE_KEY);
+      }
+    }
+  } catch {
+    try {
+      window.sessionStorage.removeItem(PLAYBACK_STATE_KEY);
+    } catch {
+      // Storage may be unavailable; normal page-local playback still works.
+    }
+  }
+
   soundtrack.loop = true;
-  soundtrack.preload = "none";
+  soundtrack.preload = savedPlayback ? "auto" : "none";
   soundtrack.volume = 0;
 
   let enabled = false;
   let fadeFrame = 0;
   let transitionContext = null;
+  let pendingResumeTime = savedPlayback?.currentTime ?? null;
 
   function updateButton() {
     button.classList.toggle("is-on", enabled);
@@ -38,7 +68,9 @@
     );
     button.title = enabled
       ? "Cinematic music is on"
-      : "Play cinematic music";
+      : pendingResumeTime !== null
+        ? "Resume cinematic music"
+        : "Play cinematic music";
   }
 
   function fadeVolume(target, duration, onComplete) {
@@ -50,7 +82,6 @@
 
     function step(now) {
       const progress = Math.min(1, (now - startTime) / durationMs);
-      // Smooth ease-in/out without abrupt volume changes.
       const eased = progress * progress * (3 - 2 * progress);
       soundtrack.volume = startVolume + (target - startVolume) * eased;
 
@@ -66,32 +97,94 @@
     fadeFrame = window.requestAnimationFrame(step);
   }
 
-  async function turnOn() {
+  function waitForMetadata() {
+    if (soundtrack.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const cleanup = () => {
+        soundtrack.removeEventListener("loadedmetadata", handleLoaded);
+        soundtrack.removeEventListener("error", handleError);
+      };
+      const handleLoaded = () => {
+        cleanup();
+        resolve();
+      };
+      const handleError = () => {
+        cleanup();
+        reject(new Error("The Starrex soundtrack metadata could not be loaded."));
+      };
+
+      soundtrack.addEventListener("loadedmetadata", handleLoaded, { once: true });
+      soundtrack.addEventListener("error", handleError, { once: true });
+      soundtrack.load();
+    });
+  }
+
+  async function startPlayback(resumeAt = null) {
     try {
+      if (resumeAt !== null) {
+        await waitForMetadata();
+        const duration = soundtrack.duration;
+        const safeTime = Number.isFinite(duration) && duration > 0
+          ? resumeAt % duration
+          : resumeAt;
+        soundtrack.currentTime = safeTime;
+      }
+
       await soundtrack.play();
+      pendingResumeTime = null;
       enabled = true;
       updateButton();
       fadeVolume(MUSIC_LEVEL, FADE_IN_SECONDS);
     } catch (error) {
       enabled = false;
       updateButton();
-      console.error("Starrex soundtrack could not be played:", error);
-      button.title = "Unable to play the soundtrack. Please try again.";
+      console.warn("Starrex soundtrack could not be started:", error);
+      button.title = pendingResumeTime !== null
+        ? "Click to resume the soundtrack from where it stopped"
+        : "Unable to play the soundtrack. Please try again.";
     }
+  }
+
+  function turnOn() {
+    startPlayback(pendingResumeTime);
   }
 
   function turnOff() {
     enabled = false;
+    pendingResumeTime = null;
+    window.cancelAnimationFrame(fadeFrame);
+    soundtrack.volume = 0;
+    soundtrack.pause();
     updateButton();
 
-    fadeVolume(0, FADE_OUT_SECONDS, () => {
-      soundtrack.pause();
-    });
+    try {
+      window.sessionStorage.removeItem(PLAYBACK_STATE_KEY);
+    } catch {
+      // Playback can still be turned off when storage is unavailable.
+    }
+  }
+
+  function savePlaybackForNextPage() {
+    if (!enabled) return;
+
+    try {
+      window.sessionStorage.setItem(
+        PLAYBACK_STATE_KEY,
+        JSON.stringify({
+          enabled: true,
+          currentTime: soundtrack.currentTime,
+          savedAt: Date.now(),
+        })
+      );
+    } catch {
+      // Keep navigation working if session storage is unavailable.
+    }
   }
 
   function playTransition() {
-    // Keep the existing navigation sound hook as a restrained one-shot swell.
-    // The background score itself is the real local audio track above.
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
 
@@ -167,6 +260,8 @@
     }
   });
 
+  window.addEventListener("pagehide", savePlaybackForNextPage);
+
   document.querySelectorAll("nav a").forEach(link => {
     link.addEventListener("click", () => {
       if (enabled) playTransition();
@@ -181,4 +276,10 @@
   };
 
   updateButton();
+
+  // Resume automatically on the next HTML page. If the browser blocks
+  // autoplay, the sound button remains available to resume at this position.
+  if (pendingResumeTime !== null) {
+    startPlayback(pendingResumeTime);
+  }
 })();
