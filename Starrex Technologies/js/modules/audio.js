@@ -123,6 +123,7 @@
   }
 
   async function startPlayback(resumeAt = null) {
+    const isRestoringPlayback = resumeAt !== null;
     try {
       if (resumeAt !== null) {
         await waitForMetadata();
@@ -137,7 +138,7 @@
       pendingResumeTime = null;
       enabled = true;
       updateButton();
-      fadeVolume(MUSIC_LEVEL, FADE_IN_SECONDS);
+      fadeVolume(MUSIC_LEVEL, isRestoringPlayback ? 1.1 : FADE_IN_SECONDS);
     } catch (error) {
       enabled = false;
       updateButton();
