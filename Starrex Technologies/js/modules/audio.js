@@ -1,342 +1,361 @@
-/* =========================================================
-   STARREX – Ambient "liminal space" sound (Web Audio API)
-   Built entirely in the browser: no audio files needed.
-   A deep drone, a hollow floating pad, a faint electric hum,
-   soft room air, distant chimes and a huge empty-hall reverb.
-========================================================= */
+/*
+ * STARREX — Cinematic space score
+ * Procedurally composed with the Web Audio API. No external audio files,
+ * network requests, or autoplay: playback begins only after the sound
+ * control is activated by the visitor.
+ */
 
-(function () {
-  const MASTER_LEVEL = 0.20;  // overall volume (0 – 1). Lower = quieter.
+(() => {
+  "use strict";
 
-  const WHOOSH_LEVEL = 0.8;   // page-switch whoosh volume. Lower = quieter, 0 = off.
+  const MASTER_LEVEL = 0.14;
+  const TRANSITION_LEVEL = 0.055;
+  const BPM = 72;
+  const BEAT = 60 / BPM;
 
-  function makeImpulse(ctx, seconds, decay) {
-    const rate = ctx.sampleRate, len = Math.floor(rate * seconds);
-    const buf = ctx.createBuffer(2, len, rate);
-    for (let ch = 0; ch < 2; ch++) {
-      const d = buf.getChannelData(ch);
-      let y = 0;
-      for (let i = 0; i < len; i++) {
-        const t = i / len;
-        const coef = 0.06 + 0.5 * (1 - t) * (1 - t);        // the tail gets darker and smoother
-        y += ((Math.random() * 2 - 1) - y) * coef;
-        d[i] = y * Math.pow(1 - t, decay);
+  const CHORDS = [
+    { bass: 73.42, notes: [146.83, 174.61, 220.00, 261.63] }, // Dm(add9)
+    { bass: 58.27, notes: [116.54, 146.83, 174.61, 220.00] },      // Bbmaj7
+    { bass: 87.31, notes: [130.81, 164.81, 196.00, 261.63] },      // F(add9)
+    { bass: 65.41, notes: [130.81, 164.81, 196.00, 233.08] }       // C(add9)
+  ];
+
+  const MELODY = [
+    [587.33, 0.72], [523.25, 0.48], [440.00, 0.72], [392.00, 0.48],
+    [523.25, 0.72], [440.00, 0.48], [349.23, 0.72], [392.00, 0.48],
+    [587.33, 0.72], [659.25, 0.48], [523.25, 0.72], [440.00, 0.48],
+    [493.88, 0.72], [440.00, 0.48], [392.00, 0.72], [349.23, 0.48]
+  ];
+
+  function makeReverb(ctx, seconds = 4.8) {
+    const length = Math.floor(ctx.sampleRate * seconds);
+    const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+
+    for (let channel = 0; channel < 2; channel++) {
+      const data = impulse.getChannelData(channel);
+      for (let i = 0; i < length; i++) {
+        const fade = Math.pow(1 - i / length, 2.8);
+        data[i] = (Math.random() * 2 - 1) * fade * 0.22;
       }
     }
-    return buf;
-  }
 
-  function makePinkNoise(ctx, seconds) {
-    const rate = ctx.sampleRate, len = Math.floor(rate * seconds), fade = Math.floor(rate * 0.5);
-    const raw = new Float32Array(len + fade);
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-    for (let i = 0; i < raw.length; i++) {
-      const w = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + w * 0.0555179;
-      b1 = 0.99332 * b1 + w * 0.0750759;
-      b2 = 0.96900 * b2 + w * 0.1538520;
-      b3 = 0.86650 * b3 + w * 0.3104856;
-      b4 = 0.55000 * b4 + w * 0.5329522;
-      b5 = -0.7616 * b5 - w * 0.0168980;
-      raw[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
-      b6 = w * 0.115926;
-    }
-    // crossfade the end into the start so the loop has no click
-    const buf = ctx.createBuffer(1, len, rate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) {
-      if (i < fade) {
-        const a = (i / fade) * Math.PI / 2;
-        d[i] = raw[i] * Math.sin(a) + raw[len + i] * Math.cos(a);
-      } else d[i] = raw[i];
-    }
-    return buf;
+    return impulse;
   }
 
   function buildEngine(ctx) {
-    /* ---- output chain ---- */
     const master = ctx.createGain();
     master.gain.value = 0;
-    const highpass = ctx.createBiquadFilter();            // cut the deep rumble that small speakers distort
-    highpass.type = "highpass"; highpass.frequency.value = 85; highpass.Q.value = 0.7;
-    const limiter = ctx.createDynamicsCompressor();       // only catches rare loud peaks
-    limiter.threshold.value = -6; limiter.knee.value = 0; limiter.ratio.value = 12;
-    limiter.attack.value = 0.003; limiter.release.value = 0.25;
-    master.connect(highpass);
-    highpass.connect(limiter);
-    limiter.connect(ctx.destination);
 
-    /* ---- big empty-hall reverb ---- */
+    const compressor = ctx.createDynamicsCompressor();
+    compressor.threshold.value = -20;
+    compressor.knee.value = 18;
+    compressor.ratio.value = 3;
+    compressor.attack.value = 0.035;
+    compressor.release.value = 0.35;
+
+    const highPass = ctx.createBiquadFilter();
+    highPass.type = "highpass";
+    highPass.frequency.value = 38;
+
+    master.connect(highPass);
+    highPass.connect(compressor);
+    compressor.connect(ctx.destination);
+
+    const dryBus = ctx.createGain();
+    dryBus.gain.value = 0.72;
+
     const reverb = ctx.createConvolver();
-    reverb.buffer = makeImpulse(ctx, 5, 2.4);
-    const wet = ctx.createGain(); wet.gain.value = 0.9;
-    const dry = ctx.createGain(); dry.gain.value = 0.45;
-    reverb.connect(wet); wet.connect(master);
-    dry.connect(master);
-    const bus = ctx.createGain();            // everything musical goes through here
-    bus.connect(dry);
-    bus.connect(reverb);
+    reverb.buffer = makeReverb(ctx);
+    const wetBus = ctx.createGain();
+    wetBus.gain.value = 0.30;
 
-    /* ---- helpers ---- */
-    function lfo(param, depth, period) {     // very slow wobble so the sound keeps evolving
-      const o = ctx.createOscillator();
-      o.frequency.value = 1 / period;
-      const g = ctx.createGain();
-      g.gain.value = depth;
-      o.connect(g); g.connect(param);
-      o.start();
+    const musicBus = ctx.createGain();
+    musicBus.gain.value = 0.78;
+
+    musicBus.connect(dryBus);
+    musicBus.connect(reverb);
+    dryBus.connect(master);
+    reverb.connect(wetBus);
+    wetBus.connect(master);
+
+    function createVoice(type, frequency, gainValue, destination, detune = 0) {
+      const oscillator = ctx.createOscillator();
+      oscillator.type = type;
+      oscillator.frequency.value = frequency;
+      oscillator.detune.value = detune;
+
+      const gain = ctx.createGain();
+      gain.gain.value = gainValue;
+      oscillator.connect(gain);
+      gain.connect(destination);
+      oscillator.start();
+
+      return { oscillator, gain };
     }
-    function osc(type, freq, cents, dest, level) {
-      const o = ctx.createOscillator();
-      o.type = type; o.frequency.value = freq; o.detune.value = cents;
-      const g = ctx.createGain(); g.gain.value = level;
-      o.connect(g); g.connect(dest);
-      o.start();
-      return g;
-    }
-    const noiseBuf = makePinkNoise(ctx, 4);
 
-    /* ---- 1. deep drone ---- */
-    const droneFilter = ctx.createBiquadFilter();
-    droneFilter.type = "lowpass"; droneFilter.frequency.value = 520; droneFilter.Q.value = 0.7;
-    const droneGain = ctx.createGain(); droneGain.gain.value = 0.20;
-    droneFilter.connect(droneGain); droneGain.connect(bus);
-    lfo(droneFilter.frequency, 150, 23);
-    lfo(osc("sine", 110, 0, droneFilter, 0.50).gain, 0.12, 17);
-    lfo(osc("sine", 110, 9, droneFilter, 0.45).gain, 0.10, 21);    // slight detune = slow beating
-    lfo(osc("sine", 164.81, -4, droneFilter, 0.28).gain, 0.08, 26);
-    lfo(osc("triangle", 220, 3, droneFilter, 0.12).gain, 0.05, 19);
+    // A soft, low foundation — felt more than heard.
+    const bassFilter = ctx.createBiquadFilter();
+    bassFilter.type = "lowpass";
+    bassFilter.frequency.value = 190;
+    bassFilter.connect(musicBus);
+    const bass = createVoice("sine", CHORDS[0].bass, 0.16, bassFilter);
 
-    /* ---- 2. hollow floating pad (open fifths, no "happy" or "sad" third) ---- */
+    // Four sustained chord tones form the main cinematic pad.
     const padFilter = ctx.createBiquadFilter();
-    padFilter.type = "lowpass"; padFilter.frequency.value = 1400; padFilter.Q.value = 0.4;
-    const padGain = ctx.createGain(); padGain.gain.value = 1.0;
-    padFilter.connect(padGain); padGain.connect(bus);
-    lfo(padFilter.frequency, 500, 41);
-    [[110, 13], [164.81, 17], [220, 23], [246.94, 29], [329.63, 37]].forEach(([f, period]) => {
-      lfo(osc("sine", f, -5, padFilter, 0.10).gain, 0.07, period);
-      osc("triangle", f, 6, padFilter, 0.04);
-    });
+    padFilter.type = "lowpass";
+    padFilter.frequency.value = 1250;
+    padFilter.Q.value = 0.45;
+    padFilter.connect(musicBus);
 
-    // a few high, glassy notes floating above the pad
-    [[493.88, 31], [659.25, 43]].forEach(([f, period]) => {
-      lfo(osc("sine", f, 4, padFilter, 0.035).gain, 0.03, period);
-    });
+    const padVoices = CHORDS[0].notes.map((frequency, index) =>
+      createVoice(index === 0 ? "triangle" : "sine", frequency, index === 0 ? 0.075 : 0.052, padFilter, index % 2 ? 3 : -3)
+    );
 
-    /* ---- 3. faint electric hum, like lights in an empty building ---- */
-    const humFilter = ctx.createBiquadFilter();
-    humFilter.type = "lowpass"; humFilter.frequency.value = 420;
-    const humGain = ctx.createGain(); humGain.gain.value = 0.010;
-    humFilter.connect(humGain); humGain.connect(dry);
-    lfo(humGain.gain, 0.004, 5.3);
-    osc("sawtooth", 100, 0, humFilter, 1);
+    // A very quiet octave layer adds width without a harsh synthetic edge.
+    const upperVoices = [
+      createVoice("sine", 293.66, 0.018, padFilter, -4),
+      createVoice("sine", 440.00, 0.014, padFilter, 4)
+    ];
 
-    /* ---- 4. soft room air ---- */
-    const air = ctx.createBufferSource();
-    air.buffer = noiseBuf; air.loop = true;
-    const airFilter = ctx.createBiquadFilter();
-    airFilter.type = "lowpass"; airFilter.frequency.value = 800; airFilter.Q.value = 0.3;
-    const airGain = ctx.createGain(); airGain.gain.value = 0.12;
-    air.connect(airFilter); airFilter.connect(airGain); airGain.connect(bus);
-    lfo(airFilter.frequency, 220, 33);
-    air.start();
+    // Slow filter movement keeps the sustained harmony alive.
+    const filterLfo = ctx.createOscillator();
+    const filterDepth = ctx.createGain();
+    filterLfo.frequency.value = 0.035;
+    filterDepth.gain.value = 260;
+    filterLfo.connect(filterDepth);
+    filterDepth.connect(padFilter.frequency);
+    filterLfo.start();
 
-    // very faint high shimmer, like air in a huge empty room
-    const shimmer = ctx.createBufferSource();
-    shimmer.buffer = noiseBuf; shimmer.loop = true;
-    const shimmerFilter = ctx.createBiquadFilter();
-    shimmerFilter.type = "bandpass"; shimmerFilter.frequency.value = 2200; shimmerFilter.Q.value = 0.8;
-    const shimmerGain = ctx.createGain(); shimmerGain.gain.value = 0.015;
-    shimmer.connect(shimmerFilter); shimmerFilter.connect(shimmerGain); shimmerGain.connect(bus);
-    lfo(shimmerGain.gain, 0.010, 19);
-    shimmer.start(1.7);
+    // Gentle stereo movement, kept deliberately subtle.
+    const pan = ctx.createStereoPanner();
+    pan.pan.value = 0;
+    musicBus.disconnect();
+    musicBus.connect(pan);
+    pan.connect(dryBus);
+    pan.connect(reverb);
+    const panLfo = ctx.createOscillator();
+    const panDepth = ctx.createGain();
+    panLfo.frequency.value = 0.018;
+    panDepth.gain.value = 0.12;
+    panLfo.connect(panDepth);
+    panDepth.connect(pan.pan);
+    panLfo.start();
 
-    /* ---- 5. distant chimes ---- */
-    const chimeNotes = [440, 493.88, 659.25, 739.99, 880];
-    function chime(time) {
-      const f = chimeNotes[Math.floor(Math.random() * chimeNotes.length)];
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, time);
-      g.gain.linearRampToValueAtTime(0.08, time + 1.8);
-      g.gain.exponentialRampToValueAtTime(0.0001, time + 9);
-      g.connect(bus);
-      [[f, 1], [f * 2.01, 0.25]].forEach(([freq, level]) => {
-        const o = ctx.createOscillator();
-        o.type = "sine"; o.frequency.value = freq;
-        const og = ctx.createGain(); og.gain.value = level;
-        o.connect(og); og.connect(g);
-        o.start(time); o.stop(time + 9.5);
+    function setChord(index, time) {
+      const chord = CHORDS[index % CHORDS.length];
+      bass.oscillator.frequency.setTargetAtTime(chord.bass, time, 2.2);
+
+      padVoices.forEach((voice, voiceIndex) => {
+        voice.oscillator.frequency.setTargetAtTime(chord.notes[voiceIndex], time, 2.8);
       });
+
+      upperVoices[0].oscillator.frequency.setTargetAtTime(chord.notes[1] * 2, time, 3.2);
+      upperVoices[1].oscillator.frequency.setTargetAtTime(chord.notes[2] * 2, time, 3.2);
     }
-    let nextChime = ctx.currentTime + 6;
-    function scheduleChimes(until) {
-      while (nextChime < until) {
-        chime(nextChime);
-        nextChime += 14 + Math.random() * 16;
+
+    // Melody notes are soft, rounded and widely spaced — no random chimes.
+    function playNote(frequency, time, duration) {
+      const voiceFilter = ctx.createBiquadFilter();
+      voiceFilter.type = "lowpass";
+      voiceFilter.frequency.setValueAtTime(1900, time);
+      voiceFilter.frequency.exponentialRampToValueAtTime(950, time + duration);
+
+      const voiceGain = ctx.createGain();
+      voiceGain.gain.setValueAtTime(0.0001, time);
+      voiceGain.gain.exponentialRampToValueAtTime(0.024, time + 0.22);
+      voiceGain.gain.setValueAtTime(0.024, time + duration * 0.45);
+      voiceGain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+
+      const tone = ctx.createOscillator();
+      tone.type = "sine";
+      tone.frequency.setValueAtTime(frequency, time);
+      tone.connect(voiceFilter);
+      voiceFilter.connect(voiceGain);
+      voiceGain.connect(musicBus);
+      tone.start(time);
+      tone.stop(time + duration + 0.05);
+      tone.addEventListener("ended", () => {
+        tone.disconnect();
+        voiceFilter.disconnect();
+        voiceGain.disconnect();
+      }, { once: true });
+    }
+
+    let nextNoteTime = ctx.currentTime + 2.5;
+    let noteIndex = 0;
+    let nextChordTime = ctx.currentTime + 0.1;
+    let chordIndex = 0;
+
+    function schedule(until) {
+      while (nextChordTime < until) {
+        setChord(chordIndex, nextChordTime);
+        chordIndex = (chordIndex + 1) % CHORDS.length;
+        nextChordTime += BEAT * 8;
+      }
+
+      while (nextNoteTime < until) {
+        const [frequency, length] = MELODY[noteIndex % MELODY.length];
+        // Leave deliberate gaps between phrases for a spacious soundtrack.
+        if (noteIndex % 4 !== 3) {
+          playNote(frequency, nextNoteTime, BEAT * length * 2.4);
+        }
+        noteIndex++;
+        nextNoteTime += BEAT * 2;
       }
     }
 
-    /* ---- whoosh for page transitions ---- */
-    function whoosh(time) {
-      const t = time === undefined ? ctx.currentTime : time;
-      const src = ctx.createBufferSource();
-      src.buffer = noiseBuf;
-      const f = ctx.createBiquadFilter();
-      f.type = "bandpass"; f.Q.value = 0.5;
-      f.frequency.setValueAtTime(160, t);
-      f.frequency.exponentialRampToValueAtTime(1800, t + 0.9);
-      f.frequency.exponentialRampToValueAtTime(240, t + 2.2);
-      const soft = ctx.createBiquadFilter();               // takes the hiss off the top
-      soft.type = "lowpass"; soft.frequency.value = 2200; soft.Q.value = 0.5;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(Math.max(WHOOSH_LEVEL, 0.0002), t + 0.9);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
-      src.connect(f); f.connect(soft); soft.connect(g); g.connect(bus);
-      src.start(t); src.stop(t + 2.6);
+    function transition(time = ctx.currentTime) {
+      // A restrained low swell, not a loud white-noise whoosh.
+      const oscillator = ctx.createOscillator();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(95, time);
+      oscillator.frequency.exponentialRampToValueAtTime(185, time + 0.55);
+      oscillator.frequency.exponentialRampToValueAtTime(78, time + 1.65);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, time);
+      gain.gain.linearRampToValueAtTime(TRANSITION_LEVEL, time + 0.48);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 1.8);
+
+      oscillator.connect(gain);
+      gain.connect(musicBus);
+      oscillator.start(time);
+      oscillator.stop(time + 1.9);
+      oscillator.addEventListener("ended", () => {
+        oscillator.disconnect();
+        gain.disconnect();
+      }, { once: true });
     }
 
     function fadeTo(level, seconds) {
-      const t = ctx.currentTime;
-      master.gain.cancelScheduledValues(t);
-      master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(level, t + seconds);
+      const now = ctx.currentTime;
+      master.gain.cancelScheduledValues(now);
+      master.gain.setTargetAtTime(level, now, Math.max(0.08, seconds / 3));
     }
 
-    return { fadeTo, whoosh, scheduleChimes };
+    return { fadeTo, schedule, transition };
   }
 
-  /* ---------- the on/off button ---------- */
-  const btn = document.getElementById("sound-toggle");
-  if (!btn) return;
+  const button = document.getElementById("sound-toggle");
+  if (!button) return;
 
-  let ctx = null;
+  let context = null;
   let engine = null;
-  let on = false;
-  let offTimer = null;
-  let chimeTimer = null;
+  let enabled = false;
+  let scheduler = null;
+  let suspendTimer = null;
 
-  function setUI() {
-    btn.classList.toggle("is-on", on);
-    btn.setAttribute("aria-pressed", String(on));
-    btn.setAttribute("aria-label", on ? "Turn ambient sound off" : "Turn ambient sound on");
+  function updateButton() {
+    button.classList.toggle("is-on", enabled);
+    button.setAttribute("aria-pressed", String(enabled));
+    button.setAttribute("aria-label", enabled ? "Turn cinematic music off" : "Turn cinematic music on");
+    button.title = enabled ? "Cinematic music is on" : "Play cinematic music";
   }
 
-  function stopChimeScheduler() {
-    if (chimeTimer !== null) {
-      window.clearTimeout(chimeTimer);
-      chimeTimer = null;
+  function stopScheduler() {
+    if (scheduler !== null) {
+      window.clearInterval(scheduler);
+      scheduler = null;
     }
   }
 
-  function scheduleChimesWhileActive() {
-    if (!on || !ctx || ctx.state !== "running" || !engine) {
-      chimeTimer = null;
-      return;
-    }
-
-    engine.scheduleChimes(ctx.currentTime + 30);
-    chimeTimer = window.setTimeout(scheduleChimesWhileActive, 5000);
+  function startScheduler() {
+    if (!enabled || !context || context.state !== "running" || !engine || scheduler !== null) return;
+    engine.schedule(context.currentTime + 12);
+    scheduler = window.setInterval(() => {
+      if (!enabled || !context || context.state !== "running") {
+        stopScheduler();
+        return;
+      }
+      engine.schedule(context.currentTime + 12);
+    }, 3000);
   }
 
   async function turnOn() {
-    if (!ctx) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-
-      if (!AC) {
-        btn.title = "Ambient sound is not supported by this browser.";
+    if (!context) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        button.title = "Audio is not supported by this browser.";
         return;
       }
 
       try {
-        ctx = new AC({ latencyHint: "playback" });
-        engine = buildEngine(ctx);
+        context = new AudioContextClass({ latencyHint: "interactive" });
+        engine = buildEngine(context);
       } catch (error) {
-        console.error("Starrex ambient sound could not be initialized:", error);
-        if (ctx && ctx.state !== "closed") {
-          await ctx.close().catch(() => {});
+        console.error("Starrex music could not be initialized:", error);
+        if (context && context.state !== "closed") {
+          await context.close().catch(() => {});
         }
-        ctx = null;
+        context = null;
         engine = null;
         return;
       }
     }
 
-    window.clearTimeout(offTimer);
-    await ctx.resume();
+    window.clearTimeout(suspendTimer);
+    await context.resume();
+    if (context.state !== "running") return;
 
-    if (ctx.state !== "running") return;
-
-    on = true;
-    setUI();
-    engine.fadeTo(MASTER_LEVEL, 4);
-    stopChimeScheduler();
-    scheduleChimesWhileActive();
+    enabled = true;
+    updateButton();
+    engine.fadeTo(MASTER_LEVEL, 3.5);
+    startScheduler();
   }
 
   function turnOff() {
-    if (!ctx || !engine) return;
+    if (!context || !engine) return;
 
-    on = false;
-    setUI();
-    stopChimeScheduler();
-    engine.fadeTo(0, 1.5);
+    enabled = false;
+    updateButton();
+    stopScheduler();
+    engine.fadeTo(0, 1.8);
 
-    window.clearTimeout(offTimer);
-    offTimer = window.setTimeout(() => {
-      if (!on && ctx && ctx.state === "running") {
-        ctx.suspend().catch(error => {
-          console.warn("Starrex ambient sound could not be paused:", error);
-        });
+    window.clearTimeout(suspendTimer);
+    suspendTimer = window.setTimeout(() => {
+      if (!enabled && context && context.state === "running") {
+        context.suspend().catch(error => console.warn("Starrex audio pause failed:", error));
       }
-    }, 1700);
+    }, 2100);
   }
 
-  btn.addEventListener("click", async () => {
+  button.addEventListener("click", async () => {
     try {
-      if (on) {
-        turnOff();
-      } else {
-        await turnOn();
-      }
+      if (enabled) turnOff();
+      else await turnOn();
     } catch (error) {
-      on = false;
-      stopChimeScheduler();
-      setUI();
-      console.warn("Starrex ambient sound could not change state:", error);
+      enabled = false;
+      stopScheduler();
+      updateButton();
+      console.warn("Starrex music control failed:", error);
     }
   });
 
-  /* Suspend audio and its scheduler while the tab is not visible. */
   document.addEventListener("visibilitychange", () => {
-    if (!ctx || !on) return;
+    if (!context || !enabled) return;
 
     if (document.hidden) {
-      stopChimeScheduler();
-      ctx.suspend().catch(error => {
-        console.warn("Starrex ambient sound could not be paused:", error);
-      });
+      stopScheduler();
+      context.suspend().catch(error => console.warn("Starrex audio pause failed:", error));
     } else {
-      ctx.resume()
-        .then(() => {
-          if (on) scheduleChimesWhileActive();
-        })
-        .catch(error => {
-          console.warn("Starrex ambient sound could not resume:", error);
-        });
+      context.resume().then(startScheduler).catch(error => {
+        console.warn("Starrex audio resume failed:", error);
+      });
     }
   });
 
   document.querySelectorAll("nav a").forEach(link => {
     link.addEventListener("click", () => {
-      if (on && engine) engine.whoosh();
+      if (enabled && engine) engine.transition();
     });
   });
 
   window.starrexSound = {
     whoosh: () => {
-      if (on && engine) engine.whoosh();
+      if (enabled && engine) engine.transition();
     },
-    isOn: () => on,
+    isOn: () => enabled
   };
+
+  updateButton();
 })();
