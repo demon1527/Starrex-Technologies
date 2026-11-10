@@ -38,8 +38,7 @@ document.addEventListener("click", (event) => {
     : event.target?.parentElement;
   const link = target?.closest('a[href="#home"]');
 
-  if (!link || window.location.pathname.split("/").pop() !== "index.html" &&
-      window.location.pathname !== "/") return;
+  if (!link || !document.querySelector(".home-hero")) return;
 
   event.preventDefault();
   window.history.replaceState(
