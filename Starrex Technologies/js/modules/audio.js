@@ -134,11 +134,20 @@
         soundtrack.currentTime = safeTime;
       }
 
+      soundtrack.muted = false;
       await soundtrack.play();
       pendingResumeTime = null;
       enabled = true;
       updateButton();
-      fadeVolume(MUSIC_LEVEL, isRestoringPlayback ? 1.1 : FADE_IN_SECONDS);
+
+      // A restored page may receive visibility events during navigation.
+      // Set its output level directly so a cancelled fade cannot leave it silent.
+      if (isRestoringPlayback) {
+        window.cancelAnimationFrame(fadeFrame);
+        soundtrack.volume = MUSIC_LEVEL;
+      } else {
+        fadeVolume(MUSIC_LEVEL, FADE_IN_SECONDS);
+      }
     } catch (error) {
       enabled = false;
       updateButton();
@@ -240,26 +249,9 @@
     );
   });
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      window.cancelAnimationFrame(fadeFrame);
-      if (enabled) {
-        soundtrack.volume = 0;
-        soundtrack.pause();
-      }
-      return;
-    }
-
-    if (enabled) {
-      soundtrack.play()
-        .then(() => fadeVolume(MUSIC_LEVEL, 1.2))
-        .catch(error => {
-          enabled = false;
-          updateButton();
-          console.warn("Starrex soundtrack could not resume:", error);
-        });
-    }
-  });
+  // Do not pause or mute on visibilitychange. Page navigation and tab
+  // visibility changes can overlap; muting here can leave a restored player
+  // marked as enabled while its volume remains at zero.
 
   window.addEventListener("pagehide", savePlaybackForNextPage);
 
