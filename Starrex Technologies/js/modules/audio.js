@@ -97,26 +97,26 @@
     fadeFrame = window.requestAnimationFrame(step);
   }
 
-  function waitForMetadata() {
-    if (soundtrack.readyState >= HTMLMediaElement.HAVE_METADATA) {
+  function waitForPlaybackReady() {
+    if (soundtrack.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
       return Promise.resolve();
     }
 
     return new Promise((resolve, reject) => {
       const cleanup = () => {
-        soundtrack.removeEventListener("loadedmetadata", handleLoaded);
+        soundtrack.removeEventListener("canplay", handleReady);
         soundtrack.removeEventListener("error", handleError);
       };
-      const handleLoaded = () => {
+      const handleReady = () => {
         cleanup();
         resolve();
       };
       const handleError = () => {
         cleanup();
-        reject(new Error("The Starrex soundtrack metadata could not be loaded."));
+        reject(new Error("The Starrex soundtrack could not become ready for playback."));
       };
 
-      soundtrack.addEventListener("loadedmetadata", handleLoaded, { once: true });
+      soundtrack.addEventListener("canplay", handleReady, { once: true });
       soundtrack.addEventListener("error", handleError, { once: true });
       soundtrack.load();
     });
@@ -124,28 +124,43 @@
 
   async function startPlayback(resumeAt = null) {
     const isRestoringPlayback = resumeAt !== null;
+
+    // Do not advertise playback until the browser confirms that audio is playing.
+    enabled = false;
+    updateButton();
+
     try {
-      if (resumeAt !== null) {
-        await waitForMetadata();
+      if (isRestoringPlayback) {
+        await waitForPlaybackReady();
+
         const duration = soundtrack.duration;
         const safeTime = Number.isFinite(duration) && duration > 0
           ? resumeAt % duration
           : resumeAt;
+
         soundtrack.currentTime = safeTime;
+
+        // Set the restored output level before play(). Starting a restored
+        // track at zero volume can leave some browsers in a silent state.
+        window.cancelAnimationFrame(fadeFrame);
+        soundtrack.volume = MUSIC_LEVEL;
+      } else {
+        soundtrack.volume = 0;
       }
 
       soundtrack.muted = false;
       await soundtrack.play();
+
+      if (soundtrack.paused || soundtrack.muted ||
+          (isRestoringPlayback && soundtrack.volume <= 0)) {
+        throw new Error("The soundtrack did not enter audible playback.");
+      }
+
       pendingResumeTime = null;
       enabled = true;
       updateButton();
 
-      // A restored page may receive visibility events during navigation.
-      // Set its output level directly so a cancelled fade cannot leave it silent.
-      if (isRestoringPlayback) {
-        window.cancelAnimationFrame(fadeFrame);
-        soundtrack.volume = MUSIC_LEVEL;
-      } else {
+      if (!isRestoringPlayback) {
         fadeVolume(MUSIC_LEVEL, FADE_IN_SECONDS);
       }
     } catch (error) {
